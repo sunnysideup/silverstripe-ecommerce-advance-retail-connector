@@ -1,0 +1,33 @@
+{
+    "name": "sunnysideup/ecommerce-advance-retail_connector",
+    "type": "silverstripe-vendormodule",
+    "description": "A class that allows developers to make a connection to the advanced retail api",
+    "keywords": [
+        "Silverstripe-CMS",
+        "CMS",
+        "Silverstripe",
+        "e-commerce",
+        "api",
+        "advance retail",
+        "AdvanceRetail"
+    ],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Nicolaas Francken",
+            "email": "modules@sunnysideup.co.nz",
+            "role": "lead developer"
+        }
+    ],
+    "require": {
+        "sunnysideup/ecommerce": "*",
+        "silverstripe/recipe-cms": "^4.4",
+        "guzzlehttp/guzzle": "^6.5 || ^7.0",
+        "sunnysideup/flush": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sunnysideup\\EcommerceAdvanceRetailConnector\\": "src/"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+SilverStripe\Control\Director:
+  rules:
+    # test-advancer-retail//$Action/$ID/$OtherID: Sunnysideup\EcommerceAdvanceRetailConnector\Control\TestController
+
+    # test-advancer-retail-nat//$Action/$ID/$OtherID: Sunnysideup\EcommerceAdvanceRetailConnector\Control\TestControllerNat
+
+    # http://our-site/ar-test/products/asdfasdf1/2?flush=all
+    ar-test//$Action/$ID/$OtherID: Sunnysideup\EcommerceAdvanceRetailConnector\Control\ARTestController

@@ -1,0 +1,16 @@
+---
+Name: ecommerce_advance_retail_connector
+Before:
+  - '#app'
+After:
+  - '#coreconfig'
+  - '#cmsextensions'
+  - '#ecommerce'
+---
+Sunnysideup\Ecommerce\Model\Order:
+  extensions:
+    - Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\OrderExtension
+
+SilverStripe\Security\Member:
+  extensions:
+    - Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\MemberExtension
