@@ -1,5 +1,5 @@
 {
-    "name": "sunnysideup/ecommerce-advance-retail_connector",
+    "name": "sunnysideup/ecommerce-advance-retail-connector",
     "type": "silverstripe-vendormodule",
     "description": "A class that allows developers to make a connection to the advanced retail api",
     "keywords": [
