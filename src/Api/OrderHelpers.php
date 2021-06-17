@@ -134,6 +134,10 @@ class OrderHelpers
             'narrative' => '',
         ];
 
+        if($addressType == 'ShippingAddress' && ! $order->UseShippingAddress){
+            $addressType = 'BillingAddress';
+        }
+
         $orderAddress = $order->{$addressType}();
 
         if ($orderAddress && $orderAddress->exists()) {

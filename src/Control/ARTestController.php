@@ -280,6 +280,10 @@ class ARTestController extends Controller
 
     protected function getApi(): ARConnector
     {
-        return Injector::inst()->get(ARConnector::class);
+        $api = new ARConnector('ARESAPITest');
+        if(isset($_GET['live'])){
+            $api->setBasePath('ARESAPI');
+        }
+        return $api;
     }
 }

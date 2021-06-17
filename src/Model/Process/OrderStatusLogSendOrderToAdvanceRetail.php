@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Model\Process;
 
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\ReadonlyField;
 use Sunnysideup\Ecommerce\Model\Process\OrderStatusLog;
@@ -76,6 +77,11 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
         if (! $this->exists()) {
             $order = $this->Order();
             $api = Injector::inst()->get(ARConnector::class);
+            if(!Director::isLive()) {
+                //only send orders to test API if we are not in live mode
+                $api->setBasePath('ARESAPITest');
+            }
+
             $arCustomerID = 0;
             $member = $order->Member();
             if ($member && $member->exists()) {

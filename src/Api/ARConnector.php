@@ -24,9 +24,9 @@ class ARConnector
     use FlushNow;
 
     /**
-     * @var string
+     * @var string | ARESAPI or ARESAPITest
      */
-    public const BASE_PATH = 'ARESAPITest';
+    public $basePath = '';
 
     /**
      * @var float|mixed
@@ -39,9 +39,19 @@ class ARConnector
 
     protected $error = '';
 
-    public function __construct()
+    public function __construct($basePath = 'ARESAPI')
     {
-        // initialisation here??
+        $this->basePath = $basePath;
+    }
+
+    /**
+     * @var string | ARESAPI or ARESAPITest
+     */
+    public function setBasePath(string $basePath)
+    {
+        $this->basePath = $basePath;
+
+        return $this;
     }
 
     public function setDebug(bool $bool)
@@ -76,7 +86,7 @@ class ARConnector
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/products/changed';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/changed';
 
         $data = [
             'since' => $since,
@@ -91,7 +101,7 @@ class ARConnector
 
     public function getProductDetails(string $productId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/products/details/' . $productId;
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/details/' . $productId;
 
         return $this->runRequest($url);
     }
@@ -159,7 +169,7 @@ class ARConnector
 
     public function getProductDetailsExtra(string $productId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/products/' . $productId . '/extraDetails';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/' . $productId . '/extraDetails';
 
         return $this->runRequest($url);
     }
@@ -241,7 +251,7 @@ class ARConnector
         ?int $pageSize = 0,
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/products/price/changed';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/price/changed';
 
         $data = [
             'changedSince' => $since,
@@ -273,7 +283,7 @@ class ARConnector
             echo '</pre>';
         }
 
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/products/inventory/availability';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/inventory/availability';
         if ($this->debug) {
             echo '<h2>to</h2>' . $url;
         }
@@ -324,7 +334,7 @@ class ARConnector
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/promotions/pricebreaks/active';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/promotions/pricebreaks/active';
 
         $activeBetween = [
             'from' => $fromDate,
@@ -349,7 +359,7 @@ class ARConnector
      */
     public function getCategories(int $categoryType): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/categories/code/search/info?categoryType=' . $categoryType . '&searchKey=*&pagingInfo.sort=*';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/categories/code/search/info?categoryType=' . $categoryType . '&searchKey=*&pagingInfo.sort=*';
 
         return $this->runRequest($url);
     }
@@ -359,7 +369,7 @@ class ARConnector
      */
     public function getSubCategories(string $categoryId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/subcategories/code/search/info?categoryId=' . $categoryId . '&searchKey=*&pagingInfo.sort=*';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/subcategories/code/search/info?categoryId=' . $categoryId . '&searchKey=*&pagingInfo.sort=*';
 
         return $this->runRequest($url);
     }
@@ -369,14 +379,14 @@ class ARConnector
      */
     public function getSubSubCategories(string $categoryId, string $subCategoryId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/subcategories/code/search/info?categoryId=' . $categoryId . '&subCategoryId=' . $subCategoryId . '&searchKey=*&pagingInfo.sort=*';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/subcategories/code/search/info?categoryId=' . $categoryId . '&subCategoryId=' . $subCategoryId . '&searchKey=*&pagingInfo.sort=*';
 
         return $this->runRequest($url);
     }
 
     public function compareProductWithBarcode(string $itemId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/products/search/compareWithBarcode?queryContract.itemId=' . $itemId;
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/search/compareWithBarcode?queryContract.itemId=' . $itemId;
 
         return $this->runRequest($url);
     }
@@ -398,7 +408,7 @@ class ARConnector
         ?string $sortOrder = 'customerId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/customers/changed';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers/changed';
         $data = [
             'since' => $since,
             'pageNumber' => $pageNumber,
@@ -449,7 +459,7 @@ class ARConnector
 
     public function getCustomerDetails(string $customerId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/customers//' . $customerId;
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers//' . $customerId;
 
         return $this->runRequest($url);
     }
@@ -459,7 +469,7 @@ class ARConnector
         $data = [
             'email' => $email,
         ];
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/customers/search/detailed';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers/search/detailed';
         $result = $this->runRequest($url, 'POST', $data);
 
         return $result['data'];
@@ -475,7 +485,7 @@ class ARConnector
         ?int $branchId = 1,
         ?int $workstationId = 0
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/customerOrder/details';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customerOrder/details';
         $data = [
             'customerOrderId' => $customerOrderId,
             'branchId' => $branchId,
@@ -504,7 +514,7 @@ class ARConnector
             ],
         ];
 
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/customers';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers';
 
         try {
             $result = $this->runRequest($url, 'POST', $data);
@@ -526,13 +536,14 @@ class ARConnector
      * @param int   $customerId
      * @param int   $branchId
      * @param int   $workstationId
+     * @return array | int
      */
     public function createOrder(
         ?Order $order,
         ?int $customerId = 0,
         ?int $branchId = 1,
         ?int $workstationId = 0
-    ): array {
+    ) {
         if ($order->AdvanceRetailOrderID) {
             return 'This order already exists in AR with the ID: ' . $order->AdvanceRetailOrderID;
         }
@@ -556,7 +567,7 @@ class ARConnector
             'deliveryAddress' => OrderHelpers::get_address($order, 'ShippingAddress'),
         ];
 
-        $url = $this->Config()->get('base_url') . '/' . $this::BASE_PATH . '/customerOrder';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customerOrder';
 
         try {
             $result = $this->runRequest($url, 'POST', $data);
@@ -595,9 +606,9 @@ class ARConnector
      * Makes an HTTP request and sends back the response as JSON.
      *
      * @param string $method
-     * @param array  $data
+     * @param array | string | int  $data
      */
-    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = []): array
+    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [])
     {
         $client = new Client();
 
