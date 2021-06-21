@@ -319,9 +319,15 @@ class ARConnector
         return $productsAvailable;
     }
 
+    /*
+     *  Gets or sets the date range in which the promotion can be active.
+     *  The start date of the promotion must be between $toDate and $fromDate
+     *
+     */
+
     public function getActivePromos(
-        ?string $fromDate = '2020-01-01T00:00:00.000Z',
         ?string $toDate = '2022-01-18T00:00:00.000Z',
+        ?string $fromDate = '2020-01-01T00:00:00.000Z',
         ?bool $getAllRecords = false,
         ?int $pageNumber = 1,
         ?int $pageSize = 100,
