@@ -25,6 +25,7 @@ class ARTestController extends Controller
         'getextradetails' => 'ADMIN',
         'getallextradetails' => 'ADMIN',
         'getallproductdetails' => 'ADMIN',
+        'getallpromos' => 'ADMIN',
         'mytest' => 'ADMIN',
     ];
 
@@ -276,6 +277,17 @@ class ARTestController extends Controller
                 }
             }
         }
+    }
+
+    public function getallpromos()
+    {
+        $obj = $this->getApi();
+        $obj->setDebug(true);
+        $response = $obj->getActivePromos('1970-01-01T00:00:00.000Z', date("Y-m-d\TH:i:s.000\Z"));
+        $this->promos = $response['data'];
+        echo '<pre>';
+        var_dump($this->promos);
+        echo '</pre>';
     }
 
     protected function getApi(): ARConnector

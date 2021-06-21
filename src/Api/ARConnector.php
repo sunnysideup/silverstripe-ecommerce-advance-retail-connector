@@ -319,22 +319,16 @@ class ARConnector
         return $productsAvailable;
     }
 
-    /** PRICES */
-
-    /**
-     * Gets the price breaks (e.g. buy more than 20 and get a discount)
-     * See "Promotions" in Swagger for more info.
-     */
-    public function getPriceBreaks(
-        ?string $fromDate = '2021-01-18T02:58:12.877Z',
-        ?string $toDate = '2021-01-18T02:58:12.877Z',
+    public function getActivePromos(
+        ?string $fromDate = '2020-01-01T00:00:00.000Z',
+        ?string $toDate = '2022-01-18T00:00:00.000Z',
         ?bool $getAllRecords = false,
         ?int $pageNumber = 1,
         ?int $pageSize = 100,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/promotions/pricebreaks/active';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/promotions/active';
 
         $activeBetween = [
             'from' => $fromDate,
