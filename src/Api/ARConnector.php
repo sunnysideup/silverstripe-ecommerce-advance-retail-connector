@@ -369,8 +369,7 @@ class ARConnector
      */
     public function getSubCategories(string $categoryId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/subcategories/code/search/info?categoryId=' . $categoryId . '&searchKey=*&pagingInfo.sort=*';
-
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/subcategories/code/search/info?categoryId=' . urlencode($categoryId) . '&searchKey=*&pagingInfo.sort=*';
         return $this->runRequest($url);
     }
 
