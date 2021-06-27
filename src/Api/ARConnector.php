@@ -370,6 +370,7 @@ class ARConnector
     public function getSubCategories(string $categoryId): array
     {
         $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/subcategories/code/search/info?categoryId=' . urlencode($categoryId) . '&searchKey=*&pagingInfo.sort=*';
+
         return $this->runRequest($url);
     }
 
@@ -535,6 +536,7 @@ class ARConnector
      * @param int   $customerId
      * @param int   $branchId
      * @param int   $workstationId
+     *
      * @return array | int
      */
     public function createOrder(
@@ -604,8 +606,8 @@ class ARConnector
     /**
      * Makes an HTTP request and sends back the response as JSON.
      *
-     * @param string $method
-     * @param array | string | int  $data
+     * @param string               $method
+     * @param array | string | int $data
      */
     protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [])
     {

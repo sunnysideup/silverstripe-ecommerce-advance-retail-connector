@@ -77,7 +77,7 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
         if (! $this->exists()) {
             $order = $this->Order();
             $api = Injector::inst()->get(ARConnector::class);
-            if(!Director::isLive()) {
+            if (! Director::isLive()) {
                 //only send orders to test API if we are not in live mode
                 $api->setBasePath('ARESAPITest');
             }

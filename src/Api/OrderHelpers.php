@@ -134,7 +134,7 @@ class OrderHelpers
             'narrative' => '',
         ];
 
-        if($addressType == 'ShippingAddress' && ! $order->UseShippingAddress){
+        if ('ShippingAddress' === $addressType && ! $order->UseShippingAddress) {
             $addressType = 'BillingAddress';
         }
 

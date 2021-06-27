@@ -283,7 +283,7 @@ class ARTestController extends Controller
     {
         $obj = $this->getApi();
         $obj->setDebug(true);
-        $response = $obj->getActivePromos('1970-01-01T00:00:00.000Z', date("Y-m-d\TH:i:s.000\Z"));
+        $response = $obj->getActivePromos('1970-01-01T00:00:00.000Z', date('Y-m-d\\TH:i:s.000\\Z'));
         $this->promos = $response['data'];
         echo '<pre>';
         var_dump($this->promos);
@@ -293,9 +293,10 @@ class ARTestController extends Controller
     protected function getApi(): ARConnector
     {
         $api = new ARConnector('ARESAPITest');
-        if(isset($_GET['live'])){
+        if (isset($_GET['live'])) {
             $api->setBasePath('ARESAPI');
         }
+
         return $api;
     }
 }
