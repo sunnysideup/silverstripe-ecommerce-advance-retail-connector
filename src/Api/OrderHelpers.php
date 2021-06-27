@@ -37,7 +37,7 @@ class OrderHelpers
         }
 
         $lineNumber = 0;
-        if ($orderItems->count()) {
+        if ($orderItems->exists()) {
             $lineNumber = 1;
             foreach ($orderItems as $orderItem) {
                 $lineItems[] = [
@@ -99,7 +99,7 @@ class OrderHelpers
 
         $orderPayments = $order->Payments();
 
-        if ($orderPayments->count()) {
+        if ($orderPayments->exists()) {
             foreach ($orderPayments as $orderPayment) {
                 $payments[] = [
                     'id' => '', //what should this be? - if it is more than one character we get this error: The field TenderId must be a string or array type with a maximum length of '1'
