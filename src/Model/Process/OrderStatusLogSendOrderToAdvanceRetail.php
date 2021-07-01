@@ -105,6 +105,8 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
             if (is_int($result)) {
                 $this->AdvanceRetailCustomerOrderID = $result;
                 $this->AdvanceRetailCustomerID = $arCustomerID;
+                $order->AdvanceRetailOrderID = $result;
+                $order->write();
                 $this->Note = 'Order has successfully been created in the Advance Retail API.';
             } else {
                 $this->Note = $result;
