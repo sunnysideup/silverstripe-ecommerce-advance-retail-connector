@@ -20,7 +20,7 @@ class OrderHelpers
     public static function get_line_items(?Order $order, ?int $branchId, ?int $workstationId)
     {
         $lineItems = [];
-        $isTaxInclusive = EcommerceConfig::inst()->ShopPricesAreTaxExclusive ? false : true;
+        $isTaxInclusive = ! (bool) EcommerceConfig::inst()->ShopPricesAreTaxExclusive;
         $taxModifier = null;
         $shippingModifier = null;
         $orderItems = $order->OrderItems();

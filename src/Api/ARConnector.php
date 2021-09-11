@@ -24,7 +24,7 @@ class ARConnector
     use FlushNow;
 
     /**
-     * @var string | ARESAPI or ARESAPITest
+     * @var ARESAPI|string or ARESAPITest
      */
     public $basePath = '';
 
@@ -45,7 +45,7 @@ class ARConnector
     }
 
     /**
-     * @var string | ARESAPI or ARESAPITest
+     * @var ARESAPI|string or ARESAPITest
      */
     public function setBasePath(string $basePath)
     {
@@ -537,7 +537,7 @@ class ARConnector
      * @param int   $branchId
      * @param int   $workstationId
      *
-     * @return array | int
+     * @return array|int
      */
     public function createOrder(
         ?Order $order,
@@ -606,8 +606,8 @@ class ARConnector
     /**
      * Makes an HTTP request and sends back the response as JSON.
      *
-     * @param string               $method
-     * @param array | string | int $data
+     * @param string           $method
+     * @param array|int|string $data
      */
     protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [])
     {
