@@ -472,7 +472,7 @@ class ARConnector
         $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers/search/detailed';
         $result = $this->runRequest($url, 'POST', $data);
 
-        return $result['data'];
+        return isset($result['data']) ? $result['data'] : [];
     }
 
     /**
