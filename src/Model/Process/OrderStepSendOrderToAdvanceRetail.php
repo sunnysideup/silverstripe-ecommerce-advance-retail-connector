@@ -59,10 +59,8 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
      */
     public function doStep(Order $order): bool
     {
-        $logCount = $this->RelevantLogEntries($order)->count();
-        if ($logCount) {
-            //do nothing
-        } else {
+        $logsExist = $this->RelevantLogEntries($order)->exists();
+        if (! $logsExist) {
             $className = $this->getRelevantLogEntryClassName();
             $object = $className::create();
             $object->OrderID = $order->ID;
