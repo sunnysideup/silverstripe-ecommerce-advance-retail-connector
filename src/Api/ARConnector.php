@@ -24,7 +24,9 @@ class ARConnector
     use FlushNow;
 
     /**
-     * @var ARESAPI|string or ARESAPITest
+     * ARESAPI|ARESAPITest
+     *
+     * @var string
      */
     public $basePath = '';
 
@@ -33,35 +35,48 @@ class ARConnector
      */
     public $startTime;
 
+    /**
+     *
+     * @var bool
+     */
     protected $debug = true;
 
+    /**
+     *
+     * @var bool
+     */
     protected $verbose = true;
 
+    /**
+     *
+     * @var string
+     */
     protected $error = '';
 
-    public function __construct($basePath = 'ARESAPI')
+    public function __construct(?string $basePath = 'ARESAPI')
     {
         $this->basePath = $basePath;
     }
 
     /**
-     * @var ARESAPI|string or ARESAPITest
+     * ARESAPI|ARESAPITest
+     *
      */
-    public function setBasePath(string $basePath)
+    public function setBasePath(string $basePath): self
     {
         $this->basePath = $basePath;
 
         return $this;
     }
 
-    public function setDebug(bool $bool)
+    public function setDebug(bool $bool): self
     {
         $this->debug = $bool;
 
         return $this;
     }
 
-    public function setVerbose(bool $bool)
+    public function setVerbose(bool $bool): self
     {
         $this->verbose = $bool;
 
@@ -608,9 +623,6 @@ class ARConnector
 
     /**
      * Makes an HTTP request and sends back the response as JSON.
-     *
-     * @param string           $method
-     * @param array|int|string $data
      */
     protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [])
     {
