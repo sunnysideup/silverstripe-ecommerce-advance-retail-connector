@@ -525,9 +525,10 @@ class ARConnector
 
             return [];
         }
-        if(!is_array($result)) {
+        if (! is_array($result)) {
             $result = [$result];
         }
+
         return $result;
     }
 
