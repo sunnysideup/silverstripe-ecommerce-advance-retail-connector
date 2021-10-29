@@ -24,7 +24,7 @@ class ARConnector
     use FlushNow;
 
     /**
-     * ARESAPI|ARESAPITest
+     * ARESAPI|ARESAPITest.
      *
      * @var string
      */
@@ -36,19 +36,16 @@ class ARConnector
     public $startTime;
 
     /**
-     *
      * @var bool
      */
     protected $debug = true;
 
     /**
-     *
      * @var bool
      */
     protected $verbose = true;
 
     /**
-     *
      * @var string
      */
     protected $error = '';
@@ -59,8 +56,7 @@ class ARConnector
     }
 
     /**
-     * ARESAPI|ARESAPITest
-     *
+     * ARESAPI|ARESAPITest.
      */
     public function setBasePath(string $basePath): self
     {
