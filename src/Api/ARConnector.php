@@ -273,6 +273,21 @@ class ARConnector
         return $this->runRequest($url, 'POST', $data);
     }
 
+    /**
+     * @param int       $productCode
+     * @return array
+     */
+    public function getPricesChangedForOneProduct($productCode)
+    {
+        $response = $this->getProducPricesChanged();
+        $products = $response['data'];
+        if(!empty($products)) {
+            $key = array_search($productCode, array_column($products, 'id'));
+            return $products[$key];
+        }
+        return [];
+    }
+
     public function getAvailability(array $productCodes, $branchID = null): array
     {
         $this->debug = false;
