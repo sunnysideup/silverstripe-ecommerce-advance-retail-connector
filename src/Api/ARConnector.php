@@ -274,17 +274,20 @@ class ARConnector
     }
 
     /**
-     * @param int       $productCode
+     * @param int $productCode
+     *
      * @return array
      */
     public function getPricesChangedForOneProduct($productCode)
     {
         $response = $this->getProducPricesChanged();
         $products = $response['data'];
-        if(!empty($products)) {
-            $key = array_search($productCode, array_column($products, 'id'));
+        if (! empty($products)) {
+            $key = array_search($productCode, array_column($products, 'id'), true);
+
             return $products[$key];
         }
+
         return [];
     }
 
