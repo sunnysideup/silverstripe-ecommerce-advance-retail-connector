@@ -75,7 +75,7 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
         parent::onBeforeWrite();
         $this->InternalUseOnly = true;
         if (! $this->exists()) {
-            $order = $this->Order();
+            $order = $this->getOrderCached();
             $api = Injector::inst()->get(ARConnector::class);
             if (! Director::isLive()) {
                 //only send orders to test API if we are not in live mode
