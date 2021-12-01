@@ -154,7 +154,7 @@ class ARTestController extends Controller
         $memberID = (int) $request->param('ID');
         if ($memberID) {
             $obj = $this->getApi();
-            $member = Member::get()->byID($memberID);
+            $member = Member::get_by_id($memberID);
 
             if ($member && $member->exists()) {
                 $result = $obj->createCustomer($member);
