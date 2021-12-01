@@ -62,7 +62,7 @@ class ARTestController extends Controller
 
     public function createorder($request)
     {
-        $orderID = intval($request->param('ID'));
+        $orderID = (int) $request->param('ID');
         if ($orderID) {
             $obj = $this->getApi();
             $order = Order::get_order_cached((int) $orderID);
