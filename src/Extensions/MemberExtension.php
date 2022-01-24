@@ -2,8 +2,8 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Extensions;
 
-use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataExtension;
 
 class MemberExtension extends DataExtension
@@ -22,6 +22,7 @@ class MemberExtension extends DataExtension
                 'AR Customer ID'
             )
         );
+
         return $fields;
     }
 }
