@@ -23,6 +23,11 @@ class ARConnector
     use Configurable;
     use FlushNow;
 
+    public function converTsToArDate(int $ts) : string
+    {
+        return date('Y-m-d\\TH:i:s.000\\Z', $ts);
+    }
+
     /**
      * ARESAPI|ARESAPITest.
      *
@@ -122,8 +127,8 @@ class ARConnector
      */
     public function getAllProductDetails(?string $since = '2015-09-27T21:11:12.532Z'): array
     {
-        self::do_flush('<h3>Fetching data since: ' . $since . '</h3>');
-        self::do_flush('<hr />');
+        $this->output('<h3>Fetching data since: ' . $since . '</h3>');
+        $this->output('<hr />');
 
         // get the basic data of all products
         // it's okay to not use paging this as it doesn't return much data
@@ -136,9 +141,9 @@ class ARConnector
         // limits the number of items read from API for testing
         $totalItemCountLimit = 50000;
         $totalItemCountLimit = $totalItemCount <= $totalItemCountLimit ? $totalItemCount : $totalItemCountLimit;
-        self::do_flush('<h3>Total number of items: ' . $totalItemCount . '</h3>');
-        self::do_flush('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
-        self::do_flush('<hr />');
+        $this->output('<h3>Total number of items: ' . $totalItemCount . '</h3>');
+        $this->output('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
+        $this->output('<hr />');
 
         // product data in the request
         $itemData = $fullData['data'];
@@ -149,7 +154,7 @@ class ARConnector
 
         while ($totalCount < $totalItemCountLimit) {
             for ($count = 0; $count < $countLimit; ++$count) {
-                self::do_flush('<b>Item ' . $totalCount . '</b><br />');
+                $this->output('<b>Item ' . $totalCount . '</b><br />');
 
                 // if ["action"] => "Remove" then skip (not in system anymore)
                 $currentItemAction = $itemData[$totalCount]['action'];
@@ -157,15 +162,14 @@ class ARConnector
                     $currentItemId = $itemData[$totalCount]['itemId'];
                     $itemDetail = $this->getProductDetails($currentItemId);
                     $itemDetails[$totalCount] = $itemDetail;
-                    ob_start();
-                    var_dump($itemDetail);
+                    $this->output($itemDetail);
                     $output = '<pre>' . ob_get_clean() . '</pre>';
-                    self::do_flush($output);
-                    self::do_flush('<hr />');
+                    $this->output($output);
+                    $this->output('<hr />');
                 } else {
                     // need this or else API server will crash
-                    self::do_flush('Removed item: SKIPPED <br />');
-                    self::do_flush('<hr />');
+                    $this->output('Removed item: SKIPPED <br />');
+                    $this->output('<hr />');
                 }
 
                 ++$totalCount;
@@ -191,8 +195,8 @@ class ARConnector
     public function getAllProductDetailsExtra(?string $since = '2015-09-27T21:11:12.532Z'): array
     {
         //$since = '2015-09-27T21:11:12.532Z';
-        self::do_flush('<h3>Fetching data since: ' . $since . '</h3>');
-        self::do_flush('<hr />');
+        $this->output('<h3>Fetching data since: ' . $since . '</h3>');
+        $this->output('<hr />');
 
         // $arConnector = Injector::inst()->get(ARConnector::class);
         //$obj = $this->getApi();
@@ -209,9 +213,9 @@ class ARConnector
         // limits the number of items read from API for testing
         $totalItemCountLimit = 50000;
         $totalItemCountLimit = $totalItemCount <= $totalItemCountLimit ? $totalItemCount : $totalItemCountLimit;
-        self::do_flush('<h3>Total number of items: ' . $totalItemCount . '</h3>');
-        self::do_flush('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
-        self::do_flush('<hr />');
+        $this->output('<h3>Total number of items: ' . $totalItemCount . '</h3>');
+        $this->output('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
+        $this->output('<hr />');
 
         // product data in the request
         $itemData = $fullData['data'];
@@ -222,7 +226,7 @@ class ARConnector
 
         while ($totalCount < $totalItemCountLimit) {
             for ($count = 0; $count < $countLimit; ++$count) {
-                self::do_flush('<b>Item ' . $totalCount . '</b><br />');
+                $this->output('<b>Item ' . $totalCount . '</b><br />');
 
                 // if ["action"] => "Remove" then skip (not in system anymore)
                 $currentItemAction = $itemData[$totalCount]['action'];
@@ -230,15 +234,14 @@ class ARConnector
                     $currentItemId = $itemData[$totalCount]['itemId'];
                     $itemDetail = $this->getProductDetailsExtra($currentItemId);
                     $itemDetails[$totalCount] = $itemDetail;
-                    ob_start();
-                    var_dump($itemDetail);
+                    $this->output($itemDetail);
                     $output = '<pre>' . ob_get_clean() . '</pre>';
-                    self::do_flush($output);
-                    self::do_flush('<hr />');
+                    $this->output($output);
+                    $this->output('<hr />');
                 } else {
                     // need this or else API server will crash
-                    self::do_flush('Removed item: SKIPPED <br />');
-                    self::do_flush('<hr />');
+                    $this->output('Removed item: SKIPPED <br />');
+                    $this->output('<hr />');
                 }
 
                 ++$totalCount;
@@ -296,7 +299,7 @@ class ARConnector
         $this->debug = false;
         if ($this->debug) {
             $this->startTime = microtime(true);
-            echo '<hr /><hr /><h1>' . implode(',', $productCodes) . '</h1>';
+            $this->output('<hr /><hr /><h1>' . implode(',', $productCodes) . '</h1>');
         }
         $data = [
             'itemIds' => $productCodes,
@@ -305,17 +308,10 @@ class ARConnector
             'availableSince' => null,
             'onlyStoresWithStock' => false,
         ];
-        if ($this->debug) {
-            echo '<h2>submitting</h2>';
-            echo '<pre>';
-            print_r(json_encode($data));
-            echo '</pre>';
-        }
+        $this->output('<h2>submitting</h2><pre>'.print_r(json_encode($data), 1).'</pre>');
 
         $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/inventory/availability';
-        if ($this->debug) {
-            echo '<h2>to</h2>' . $url;
-        }
+        $this->output('<h2>to</h2>' . $url);
 
         $response = $this->runRequest($url, 'POST', $data);
         // parse the XML body
@@ -337,13 +333,14 @@ class ARConnector
             }
         }
 
-        if ($this->debug) {
-            echo '<h2>response: ' . implode(',', $productsAvailable) . '</h2><pre>';
-            print_r($response);
-            echo '</pre>';
-            $timeTaken = round((microtime(true) - $this->startTime) * 1000) . ' microseconds (1000 microseconds in one second)';
-            echo '<h2>Time Taken: ' . $timeTaken . '</h2>';
-        }
+        $timeTaken = round((microtime(true) - $this->startTime) * 1000) . ' microseconds (1000 microseconds in one second)';
+        $this->output('
+            <h2>response: ' . implode(',', $productsAvailable) . '</h2>
+            <pre>' .
+            print_r($response, 1).
+            '</pre>'.
+            '<h2>Time Taken: ' . $timeTaken . '</h2>'
+        );
 
         return $productsAvailable;
     }
@@ -454,8 +451,7 @@ class ARConnector
      */
     public function getAllCustomerDetails(?string $since = '2015-09-27T21:11:12.532Z'): array
     {
-        echo '<h3>Fetching data since: ' . $since . '</h3>';
-        echo '<hr />';
+        $this->output('<h3>Fetching data since: ' . $since . '</h3>');
 
         $pageNumber = 1;    // starting page number
         $pageSize = 100;
@@ -478,10 +474,7 @@ class ARConnector
 
             ++$pageNumber;
         }
-
-        echo '<pre>';
-        var_dump($customers);
-        echo '</pre>';
+        $this->output($customers);
 
         return $customers;
     }
@@ -624,13 +617,11 @@ class ARConnector
         if ($arOrderID) {
             //$obj = $this->getApi();
             $order = $this->getCustomerOrder($arOrderID);
-            echo '<pre>';
-            var_dump($order);
-            echo '</pre>';
+            $this->output($order);
 
             return $order;
         }
-        echo 'You need to provide an order id from the AR api, eg: /ar-test/createorder/900000000';
+        $this->output('You need to provide an order id from the AR api, eg: /ar-test/createorder/900000000');
 
         return null;
     }
@@ -677,16 +668,14 @@ class ARConnector
     //#################################################
     // helpers OUTPUT
     //#################################################
+
     protected function output($v)
     {
         if ($this->verbose) {
-            echo '<hr />';
-            if (is_string($v)) {
-                echo $v . '<br />';
+            if(is_string($v)) {
+                self::do_flush($v);
             } else {
-                echo '<pre>
-                ' . print_r($v, 1) . '
-                </pre>';
+                self::do_flush('<pre>' . print_r($v, 1) . '</pre>');
             }
         }
     }
