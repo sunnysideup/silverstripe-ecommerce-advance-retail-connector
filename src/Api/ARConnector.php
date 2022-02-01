@@ -23,7 +23,7 @@ class ARConnector
     use Configurable;
     use FlushNow;
 
-    public function converTsToArDate(int $ts) : string
+    public function convertTsToArDate(int $ts) : string
     {
         return date('Y-m-d\\TH:i:s.000\\Z', $ts);
     }
