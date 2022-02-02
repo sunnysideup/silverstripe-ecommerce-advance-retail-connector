@@ -43,12 +43,12 @@ class ARConnector
     /**
      * @var bool
      */
-    protected $debug = true;
+    protected $debug = false;
 
     /**
      * @var bool
      */
-    protected $verbose = true;
+    protected $verbose = false;
 
     /**
      * @var string
@@ -122,6 +122,13 @@ class ARConnector
         return $this->runRequest($url);
     }
 
+    public function getProductDetailsExtra(string $productId): array
+    {
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/' . $productId . '/extraDetails';
+
+        return $this->runRequest($url);
+    }
+
     /**
      * @param string $since
      */
@@ -182,12 +189,6 @@ class ARConnector
         return $itemDetails;
     }
 
-    public function getProductDetailsExtra(string $productId): array
-    {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/' . $productId . '/extraDetails';
-
-        return $this->runRequest($url);
-    }
 
     /**
      * @param string $since
@@ -211,7 +212,7 @@ class ARConnector
         $totalItemCount = $pagingData['totalRecords'];
 
         // limits the number of items read from API for testing
-        $totalItemCountLimit = 50000;
+        $totalItemCountLimit = 10000*20;
         $totalItemCountLimit = $totalItemCount <= $totalItemCountLimit ? $totalItemCount : $totalItemCountLimit;
         $this->output('<h3>Total number of items: ' . $totalItemCount . '</h3>');
         $this->output('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
@@ -296,7 +297,6 @@ class ARConnector
 
     public function getAvailability(array $productCodes, $branchID = null): array
     {
-        $this->debug = false;
         if ($this->debug) {
             $this->startTime = microtime(true);
             $this->output('<hr /><hr /><h1>' . implode(',', $productCodes) . '</h1>');
