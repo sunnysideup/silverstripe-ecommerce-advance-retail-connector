@@ -284,7 +284,11 @@ class ARTestController extends Controller
         $obj = $this->getApi();
         $obj->setDebug(true);
 
-        $response = $obj->getActivePromos('1970-01-01T00:00:00.000Z', date('Y-m-d\\TH:i:s.000\\Z'));
+        ////'1970-01-01T00:00:00.000Z',
+        $response = $obj->getActivePromos(
+            ARConnector::convert_silverstripe_to_ar_date('1 jan 1980'),
+            ARConnector::convert_silverstripe_to_ar_date('tomorrow')
+        );
         $this->promos = $response['data'];
         echo '<pre>';
         var_dump($this->promos);

@@ -25,7 +25,17 @@ class ARConnector
 
     public function convertTsToArDate(int $ts) : string
     {
+        return self::convert_ts_to_ar_date($ts);
+    }
+
+    public static function convert_ts_to_ar_date($ts)
+    {
         return date('Y-m-d\\TH:i:s.000\\Z', $ts);
+    }
+
+    public static function convert_silverstripe_to_ar_date($silverstripeDate, int $adjustment = 0)
+    {
+        return self::convert_ts_to_ar_date(strtotime($silverstripeDate) + $adjustment);
     }
 
     /**
@@ -263,11 +273,15 @@ class ARConnector
      * @param int    $pageSize
      */
     public function getProducPricesChanged(
-        ?string $since = '1970-01-01T00:00:00.000Z',
+        ?string $since = '',
         ?int $pageNumber = 0,
         ?int $pageSize = 0,
         ?string $sortDir = 'ASC'
-    ): array {
+    ): array
+    {
+        if (! $since) {
+            $since = ARConnector::convert_silverstripe_to_ar_date('1 jan 1980');
+        }
         $key = preg_replace("/[^A-Za-z0-9 ]/", '', $since);
         if(! isset(self::$price_cache[$key])) {
             $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/price/changed';
