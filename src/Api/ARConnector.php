@@ -255,6 +255,8 @@ class ARConnector
         return $itemDetails;
     }
 
+    protected static $price_cache = [];
+
     /**
      * @param string $since
      * @param int    $pageNumber
@@ -266,15 +268,18 @@ class ARConnector
         ?int $pageSize = 0,
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/price/changed';
+        $key = preg_replace("/[^A-Za-z0-9 ]/", '', $since);
+        if(! isset(self::$price_cache[$key])) {
+            $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/price/changed';
 
-        $data = [
-            'changedSince' => $since,
-            'pageNumber' => $pageNumber,
-            'pageSize' => $pageSize,
-        ];
-
-        return $this->runRequest($url, 'POST', $data);
+            $data = [
+                'changedSince' => $since,
+                'pageNumber' => $pageNumber,
+                'pageSize' => $pageSize,
+            ];
+            self::$price_cache[$key] = $this->runRequest($url, 'POST', $data);
+        }
+        return self::$price_cache[$key];
     }
 
     /**
@@ -287,7 +292,8 @@ class ARConnector
         $response = $this->getProducPricesChanged();
         $products = $response['data'];
         if (! empty($products)) {
-            $key = array_search($productCode, array_column($products, 'id'), true);
+            //make sure to do a false comparison because we do not know type of data.
+            $key = array_search($productCode, array_column($products, 'id'), false);
 
             return $products[$key];
         }
