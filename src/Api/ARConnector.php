@@ -63,11 +63,6 @@ class ARConnector
     protected $debugString = false;
 
     /**
-     * @var bool
-     */
-    protected $verbose = false;
-
-    /**
      * @var string
      */
     protected $error = '';
@@ -94,12 +89,6 @@ class ARConnector
         return $this;
     }
 
-    public function setVerbose(bool $bool): self
-    {
-        $this->verbose = $bool;
-
-        return $this;
-    }
 
     public function getDebugString(): string
     {
@@ -331,7 +320,7 @@ class ARConnector
     {
         if ($this->debug) {
             $this->startTime = microtime(true);
-            $this->output('<hr /><hr /><h1>' . implode(',', $productCodes) . '</h1>');
+            $this->output('<h4>' . implode(',', $productCodes) . '</h4>');
         }
         $data = [
             'itemIds' => $productCodes,
@@ -340,10 +329,10 @@ class ARConnector
             'availableSince' => null,
             'onlyStoresWithStock' => false,
         ];
-        $this->output('<h2>submitting</h2><pre>'.print_r(json_encode($data), 1).'</pre>');
+        $this->output('<h5>submitting</h5><pre>'.print_r(json_encode($data), 1).'</pre>');
 
         $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/inventory/availability';
-        $this->output('<h2>to</h2>' . $url);
+        $this->output('<h5>to</h5>' . $url);
 
         $response = $this->runRequest($url, 'POST', $data);
         // parse the XML body
@@ -367,11 +356,11 @@ class ARConnector
 
         $timeTaken = round((microtime(true) - $this->startTime) * 1000) . ' microseconds (1000 microseconds in one second)';
         $this->output('
-            <h2>response: ' . implode(',', $productsAvailable) . '</h2>
+            <h5>response: ' . implode(',', $productsAvailable) . '</h5>
             <pre>' .
             print_r($response, 1).
             '</pre>'.
-            '<h2>Time Taken: ' . $timeTaken . '</h2>'
+            '<h5>Time Taken: ' . $timeTaken . '</h5>'
         );
 
         return $productsAvailable;
@@ -703,7 +692,7 @@ class ARConnector
 
     protected function output($v)
     {
-        if ($this->verbose) {
+        if ($this->debug) {
             if(is_string($v)) {
                 $this->debugString .= self::flush_return($v);
             } else {
