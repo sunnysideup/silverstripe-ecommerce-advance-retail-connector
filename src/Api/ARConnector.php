@@ -58,6 +58,11 @@ class ARConnector
     protected $debug = false;
 
     /**
+     * @var string
+     */
+    protected $debugString = false;
+
+    /**
      * @var bool
      */
     protected $verbose = false;
@@ -94,6 +99,11 @@ class ARConnector
         $this->verbose = $bool;
 
         return $this;
+    }
+
+    public function getDebugString(): string
+    {
+        return $this->debugString;
     }
 
     /** PRODUCTS */
@@ -326,7 +336,7 @@ class ARConnector
         $data = [
             'itemIds' => $productCodes,
             'branchId' => $branchID,
-            'branchIdsExcluded' => $this->Config()->get('branches_to_be_excluded'),
+            'branchIdsExcluded' => $this->Config()->get('branches_to_be_excluded_from_stock'),
             'availableSince' => null,
             'onlyStoresWithStock' => false,
         ];
@@ -695,9 +705,9 @@ class ARConnector
     {
         if ($this->verbose) {
             if(is_string($v)) {
-                self::do_flush($v);
+                $this->debugString .= self::flush_return($v);
             } else {
-                self::do_flush('<pre>' . print_r($v, 1) . '</pre>');
+                $this->debugString .= self::flush_return('<pre>' . print_r($v, 1) . '</pre>');
             }
         }
     }
