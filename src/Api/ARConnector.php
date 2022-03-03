@@ -23,6 +23,8 @@ class ARConnector
     use Configurable;
     use FlushNow;
 
+    private static $branches_to_be_excluded_from_stock = [];
+
     public function convertTsToArDate(int $ts) : string
     {
         return self::convert_ts_to_ar_date($ts);
@@ -324,7 +326,7 @@ class ARConnector
         $data = [
             'itemIds' => $productCodes,
             'branchId' => $branchID,
-            'branchIdsExcluded' => [],
+            'branchIdsExcluded' => $this->Config()->get('branches_to_be_excluded'),
             'availableSince' => null,
             'onlyStoresWithStock' => false,
         ];
