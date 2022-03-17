@@ -71,22 +71,6 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
         return true;
     }
 
-    /**
-     *nextStep:
-     * returns the next step (after it checks if everything is in place for the next step to run...).
-     *
-     * @see Order::doNextStatus
-     *
-     * @return null|OrderStep (next step OrderStep object)
-     */
-    public function nextStep(Order $order)
-    {
-        if ($this->doStep($order)) {
-            return parent::nextStep($order);
-        }
-
-        return null;
-    }
 
     /**
      * For some ordersteps this returns true...
