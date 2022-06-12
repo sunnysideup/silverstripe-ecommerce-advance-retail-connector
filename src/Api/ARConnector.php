@@ -23,6 +23,8 @@ class ARConnector
     use Configurable;
     use FlushNow;
 
+    public const ALL_BRANCH_ID = 0;
+
     private static $branches_to_be_excluded_from_stock = [];
 
     public function convertTsToArDate(int $ts) : string
@@ -302,7 +304,7 @@ class ARConnector
      *
      * @return array
      */
-    public function getPricesChangedForOneProduct($productCode)
+    public function getPricesChangedForOneProduct($productCode) : array
     {
         $response = $this->getProducPricesChanged();
         $products = $response['data'];
@@ -316,7 +318,7 @@ class ARConnector
         return [];
     }
 
-    protected static $storedResponses = [];
+    protected static $storedStockResponses = [];
 
     public function getAvailability(array $productCodes, $branchID = null): array
     {
@@ -340,30 +342,21 @@ class ARConnector
         $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/inventory/availability';
         $this->output('<h5>to</h5>' . $url);
         $dataKey = serialize($data);
-        if(!isset(self::$storedResponses[$dataKey])) {
-            self::$storedResponses[$dataKey] = $this->runRequest($url, 'POST', $data);
+        if (! isset(self::$storedStockResponses[$dataKey])) {
+            self::$storedStockResponses[$dataKey] = $this->runRequest($url, 'POST', $data);
         }
         // parse the XML body
         $productsAvailable = [];
-        $response = self::$storedResponses[$dataKey];
+        $response = self::$storedStockResponses[$dataKey];
         if (is_array($response) && isset($response['data'])) {
             foreach ($response['data'] as $itemData) {
                 if (isset($itemData['itemId'])) {
                     $itemID = $itemData['itemId'];
+                    $productsAvailable[$itemID][self::ALL_BRANCH_ID] = $productsAvailable[$itemID][self::ALL_BRANCH_ID] ?? 0;
                     foreach ($itemData['branchAvailabilities'] as $branchData) {
-                        if (! isset($productsAvailable[$itemID])) {
-                            $productsAvailable[$itemID] = 0;
-                        }
-                        if($branchID) {
-                            if($branchID === ($branchData['branchId'] ?? 0)) {
-                                $productsAvailable[$itemID] = $branchData['available'] ?? 0;
-                                break;
-                            }
-                        } else {
-                            if (isset($branchData['available'])) {
-                                $productsAvailable[$itemID] += (int) $branchData['available'];
-                            }
-                        }
+                        $availablePerBranch = (int) ($branchData['available'] ?? 0);
+                        $productsAvailable[$itemID][self::ALL_BRANCH_ID] += $availablePerBranch;
+                        $productsAvailable[$itemID][$branchData['branchId']] = $availablePerBranch;
                     }
                 }
             }
