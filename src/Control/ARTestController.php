@@ -7,11 +7,27 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Security\Member;
 use Sunnysideup\Ecommerce\Model\Order;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
+
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerOrder;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerDetails;
+
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductStock;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductPrices;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductDetails;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductCategories;
 use Sunnysideup\Flush\FlushNow;
 
 class ARTestController extends Controller
 {
     use FlushNow;
+
+    protected $arConnectionCustomerDetails = null;
+    protected $arConnectionCustomerOrder = null;
+
+    private $arConnectionProductCategories;
+    private $arConnectionProductDetails;
+    private $arConnectionProductPrices;
+    private $arConnectionProductStock;
 
     private static $allowed_actions = [
         'getorder' => 'ADMIN',
@@ -36,10 +52,10 @@ class ARTestController extends Controller
 
     public function mytest()
     {
-        $obj = $this->getApi();
-        $obj->setDebug(true);
+        $this->setApis();
 
-        $test = $obj->getCustomersChanged();
+
+        $test = $this->arConnectionCustomerDetails->getCustomersChanged();
 
         echo '<pre>';
         var_dump($test);
@@ -50,8 +66,8 @@ class ARTestController extends Controller
     {
         $arOrderID = (int) $request->param('ID');
         if ($arOrderID) {
-            $obj = $this->getApi();
-            $order = $obj->getCustomerOrder($arOrderID);
+            $this->setApis();
+            $order = $this->arConnectionCustomerOrder->getCustomerOrder($arOrderID);
             echo '<pre>';
             var_dump($order);
             echo '</pre>';
@@ -64,11 +80,11 @@ class ARTestController extends Controller
     {
         $orderID = (int) $request->param('ID');
         if ($orderID) {
-            $obj = $this->getApi();
+            $this->setApis();
             $order = Order::get_order_cached((int) $orderID);
 
             if ($order && $order->exists()) {
-                $orderResult = $obj->createOrder($order);
+                $orderResult = $this->arConnectionCustomerOrder->createOrder($order);
                 echo 'If the following is an integer, an order has successfully been created';
                 echo '<pre>';
                 var_dump($orderResult);
@@ -83,13 +99,13 @@ class ARTestController extends Controller
 
     public function getcustomer($request)
     {
-        $obj = $this->getApi();
-        $obj->setDebug(true);
+        $this->setApis();
+
 
         $custid = $request->Param('ID');
 
         if (isset($custid)) {
-            $obj->getCustomerDetails($custid);
+            $this->arConnectionCustomerDetails->getCustomerDetails($custid);
         } else {
             echo 'Customer ID is missing in request!';
         }
@@ -99,8 +115,8 @@ class ARTestController extends Controller
     {
         $email = $request->getVar('email');
         if ($email) {
-            $obj = $this->getApi();
-            $customer = $obj->getCustomerByEmail($email);
+            $this->setApis();
+            $customer = $this->arConnectionCustomerDetails->getCustomerByEmail($email);
             $customer = reset($customer);
             echo '<pre>';
             var_dump($customer);
@@ -116,8 +132,8 @@ class ARTestController extends Controller
         echo '<h3>Fetching data since: ' . $since . '</h3>';
         echo '<hr />';
 
-        $obj = $this->getApi();
-        $obj->setDebug(true);
+        $this->setApis();
+
 
         $pageNumber = 1;    // starting page number
         $pageSize = 100000;
@@ -127,7 +143,7 @@ class ARTestController extends Controller
         $customerCount = 0;     // number of customers read from API
 
         while ($pageNumber <= $pageNumberLimit) {
-            $fullData = $obj->getCustomersChanged($since, false, $pageNumber, $pageSize);
+            $fullData = $this->arConnectionCustomerDetails->getCustomersChanged($since, false, $pageNumber, $pageSize);
             $customerData = $fullData['data'];
             // useful
             // $pagingData = $fullData['paging'];
@@ -153,11 +169,11 @@ class ARTestController extends Controller
     {
         $memberID = (int) $request->param('ID');
         if ($memberID) {
-            $obj = $this->getApi();
+            $this->setApis();
             $member = Member::get_by_id($memberID);
 
             if ($member && $member->exists()) {
-                $result = $obj->createCustomer($member);
+                $result = $this->arConnectionCustomerOrder->createCustomer($member);
                 echo 'If the following is an integer, an customer has successfully been created';
                 echo '<pre>';
                 var_dump($result);
@@ -172,13 +188,13 @@ class ARTestController extends Controller
 
     public function getproduct($request)
     {
-        $obj = $this->getApi();
-        $obj->setDebug(true);
+        $this->setApis();
+
 
         $itemid = $request->Param('ID');
 
         if (isset($itemid)) {
-            $product = $obj->getProductDetails($itemid);
+            $product = $this->arConnectionProductDetails->getProductDetails($itemid);
             echo '<pre>';
             var_dump($product);
             echo '</pre>';
@@ -189,13 +205,13 @@ class ARTestController extends Controller
 
     public function getextradetails($request)
     {
-        $obj = $this->getApi();
-        $obj->setDebug(true);
+        $this->setApis();
+
 
         $itemid = $request->Param('ID');
 
         if (isset($itemid)) {
-            $product = $obj->getProductDetailsExtra($itemid);
+            $product = $this->arConnectionProductDetails->getProductDetailsExtra($itemid);
             var_dump($product);
         } else {
             echo 'Item ID is missing in request!';
@@ -204,17 +220,17 @@ class ARTestController extends Controller
 
     public function getallextradetails()
     {
-        $obj = $this->getApi();
-        $obj->setDebug(true);
-        $obj->getAllProductDetailsExtra();
+        $this->setApis();
+
+        $this->arConnectionProductDetails->getAllProductDetailsExtra();
     }
 
     public function getproductschanged($request)
     {
-        $obj = $this->getApi();
-        $obj->setDebug(true);
+        $this->setApis();
 
-        $products = $obj->getProductsChanged('2015-09-27T21:11:12.532Z', true);
+
+        $products = $this->arConnectionProductDetails->getProductsChanged('2015-09-27T21:11:12.532Z', true);
         var_dump($products);
     }
 
@@ -225,12 +241,12 @@ class ARTestController extends Controller
         self::do_flush('<hr />');
 
         // $arConnector = Injector::inst()->get(ARConnector::class);
-        $obj = $this->getApi();
-        $obj->setDebug(true);
+        $this->setApis();
+
 
         // get the basic data of all products
         // it's okay to not use paging this as it doesn't return much data
-        $fullData = $obj->getProductsChanged($since, true);
+        $fullData = $this->arConnectionProductDetails->getProductsChanged($since, true);
 
         // paging data in the products request and total number of items
         $pagingData = $fullData['paging'];
@@ -258,7 +274,7 @@ class ARTestController extends Controller
                 $currentItemAction = $itemData[$totalCount]['action'];
                 if ('Remove' !== $currentItemAction) {
                     $currentItemId = $itemData[$totalCount]['itemId'];
-                    $itemDetail = $obj->getProductDetails($currentItemId);
+                    $itemDetail = $this->arConnectionProductDetails->getProductDetails($currentItemId);
                     $itemDetails[$totalCount] = $itemDetail;
                     ob_start();
                     var_dump($itemDetail);
@@ -281,11 +297,11 @@ class ARTestController extends Controller
 
     public function getallpromos()
     {
-        $obj = $this->getApi();
-        $obj->setDebug(true);
+        $this->setApis();
+
 
         ////'1970-01-01T00:00:00.000Z',
-        $response = $obj->getActivePromos(
+        $response = $this->arConnectionProductPrices->getActivePromos(
             ARConnector::convert_silverstripe_to_ar_date('1 jan 1980'),
             ARConnector::convert_silverstripe_to_ar_date('tomorrow')
         );
@@ -295,13 +311,14 @@ class ARTestController extends Controller
         echo '</pre>';
     }
 
-    protected function getApi(): ARConnector
+    protected function getApi()
     {
-        $api = new ARConnector('ARESAPITest');
-        if (isset($_GET['live'])) {
-            $api->setBasePath('ARESAPI');
-        }
-
-        return $api;
+        $this->arConnectionCustomerDetails = Injector::inst()->get(CustomerDetails::class)->setDebug(true);
+        $this->arConnectionCustomerOrder = Injector::inst()->get(CustomerOrder::class)->setDebug(true);
+        // products
+        $this->arConnectionProductCategories = Injector::inst()->get(ProductCategories::class)->setDebug(true);
+        $this->arConnectionProductDetails = Injector::inst()->get(ProductDetails::class)->setDebug(true);
+        $this->arConnectionProductPrices = Injector::inst()->get(ProductPrices::class)->setDebug(true);
+        $this->arConnectionProductStock = Injector::inst()->get(ProductStock::class)->setDebug(true);
     }
 }

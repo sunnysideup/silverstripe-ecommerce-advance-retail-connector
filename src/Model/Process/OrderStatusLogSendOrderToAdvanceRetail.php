@@ -8,6 +8,9 @@ use SilverStripe\Forms\ReadonlyField;
 use Sunnysideup\Ecommerce\Model\Process\OrderStatusLog;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
 
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerOrder;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerDetails;
+
 /**
  * @authors: Nicolaas [at] Sunny Side Up .co.nz
  * @package: ecommerce
@@ -76,11 +79,8 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
         $this->InternalUseOnly = true;
         if (! $this->exists()) {
             $order = $this->getOrderCached();
-            $api = Injector::inst()->get(ARConnector::class);
-            if (! Director::isLive()) {
-                //only send orders to test API if we are not in live mode
-                $api->setBasePath('ARESAPITest');
-            }
+            $arConnectionCustomerDetails = Injector::inst()->get(CustomerDetails::class);
+            $arConnectionCustomerOrder = Injector::inst()->get(CustomerOrder::class);
 
             $arCustomerID = 0;
             $member = $order->Member();
@@ -88,9 +88,9 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
                 //does customer and advance retail customer ID
                 $arCustomerID = $member->AdvanceRetailCustomerID;
                 if (! $arCustomerID) {
-                    $customerData = $api->getCustomerByEmail($member->Email);
+                    $customerData = $arConnectionCustomerDetails->getCustomerByEmail($member->Email);
                     if (empty($customerData)) {
-                        $api->createCustomer($member);
+                        $arConnectionCustomerOrder->createCustomer($member);
                     } else {
                         $customerData = reset($customerData);
                         $member->AdvanceRetailCustomerID = $customerData['customerId'];
@@ -100,7 +100,7 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
                 }
             }
 
-            $result = $api->createOrder($order);
+            $result = $arConnectionCustomerOrder->createOrder($order);
 
             if (is_int($result)) {
                 $this->AdvanceRetailCustomerOrderID = $result;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api;
+namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\Helpers;
 
 use SilverStripe\Core\Config\Config;
 use Sunnysideup\Ecommerce\Config\EcommerceConfig;
@@ -11,6 +11,7 @@ use Sunnysideup\EcommerceTax\Modifiers\GSTTaxModifier;
 /*
  * A set of static functions to convert
  * SilverSripe Order data into the array data required by the AR API
+ * todo: turn into standardised order converter
  */
 
 class OrderHelpers
