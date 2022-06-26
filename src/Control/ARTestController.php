@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Control;
 
+use SilverStripe\Control\Director;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Security\Member;
@@ -20,6 +21,8 @@ use Sunnysideup\Flush\FlushNow;
 class ARTestController extends Controller
 {
     use FlushNow;
+
+    private static $url_segment = 'admin-test/advanceretailtest';
 
     protected $arConnectionCustomerDetails = null;
     protected $arConnectionCustomerOrder = null;
@@ -47,93 +50,95 @@ class ARTestController extends Controller
 
     public function index()
     {
-        echo 'Hello from AR Test Controller';
+        $this->setApis();
+        $this->showIndex();
     }
 
     public function mytest()
     {
         $this->setApis();
 
-
         $test = $this->arConnectionCustomerDetails->getCustomersChanged();
 
-        echo '<pre>';
-        var_dump($test);
-        echo '</pre>';
+        $this->showResults($test);
+
+        $this->showIndex();
     }
 
     public function getorder($request)
     {
-        $arOrderID = (int) $request->param('ID');
-        if ($arOrderID) {
-            $this->setApis();
-            $order = $this->arConnectionCustomerOrder->getCustomerOrder($arOrderID);
-            echo '<pre>';
-            var_dump($order);
-            echo '</pre>';
-        } else {
-            echo 'You need to provide an order id from the AR api, eg: /ar-test/createorder/900000000';
-        }
+        $this->setApis();
+
+        $arOrderID = ((int) $request->param('ID')) ?: rand(1,999);
+
+        $this->showHeader('Order with order id = '.$arOrderID);
+
+        $this->showResults($this->arConnectionCustomerOrder->getCustomerOrder($arOrderID));
+
+        $this->showExplanation('You need to provide an order id from the AR api, eg: ', 'getorder/900000000');
+
+        $this->showIndex();
     }
 
     public function createorder($request)
     {
-        $orderID = (int) $request->param('ID');
-        if ($orderID) {
-            $this->setApis();
-            $order = Order::get_order_cached((int) $orderID);
+        $this->setApis();
 
+        $orderID = (int) $request->param('ID') ;
+        if ($orderID) {
+            $order = Order::get_order_cached((int) $orderID);
             if ($order && $order->exists()) {
-                $orderResult = $this->arConnectionCustomerOrder->createOrder($order);
-                echo 'If the following is an integer, an order has successfully been created';
-                echo '<pre>';
-                var_dump($orderResult);
-                echo '</pre>';
+                $this->showHeader('Creating order #'.$orderID);
+                $this->showResults(
+                    $this->arConnectionCustomerOrder->createOrder($order)
+                );
             } else {
-                echo 'There is no matching order in the database';
+                FlushNow::do_flush('There is no matching order in the database', 'deleted');
             }
         } else {
-            echo 'You need to add an orderID to the end of this link, eg: /ar-test/createorder/123123';
+            $this->showExplanation('You need to add an orderID to the end of this link', 'createorder/123123');
         }
+
+        $this->showIndex();
     }
 
     public function getcustomer($request)
     {
         $this->setApis();
 
+        $custid = ((int) $request->Param('ID')) ?: rand(0,9999);
 
-        $custid = $request->Param('ID');
+        $this->showHeader('Getting customer with ID = '.$custid);
 
-        if (isset($custid)) {
-            $this->arConnectionCustomerDetails->getCustomerDetails($custid);
-        } else {
-            echo 'Customer ID is missing in request!';
-        }
+        $this->showResults($this->arConnectionCustomerDetails->getCustomerDetails($custid));
+
+        $this->showExplanation('You need to add an Customer ID to the end of this link', 'getcustomer/123123');
+
+        $this->showIndex();
     }
 
     public function getcustomerbyemail($request)
     {
-        $email = $request->getVar('email');
-        if ($email) {
-            $this->setApis();
-            $customer = $this->arConnectionCustomerDetails->getCustomerByEmail($email);
-            $customer = reset($customer);
-            echo '<pre>';
-            var_dump($customer);
-            echo '</pre>';
-        } else {
-            echo 'You need to provide an email address, eg: /ar-test/getcustomerbyemail/?email=test@test.com';
-        }
+        $this->setApis();
+
+        $email = $request->getVar('email')?:'hello@test.com';
+
+        $this->showHeader('Getting customer with Email = '.$email);
+        $customer = $this->arConnectionCustomerDetails->getCustomerByEmail($email);
+        $customer = reset($customer);
+        $this->showResults($customer);
+
+        $this->showExplanation('You need to provide an email address', 'getcustomerbyemail/?email=test@test.com');
+
+        $this->showIndex();
     }
 
     public function getallcustomerdetails($request)
     {
-        $since = '1990-09-27T21:11:12.532Z';
-        echo '<h3>Fetching data since: ' . $since . '</h3>';
-        echo '<hr />';
-
         $this->setApis();
-
+        $datePhrase = '1 year ago';
+        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime($datePhrase));
+        $this->showHeader('Fetching data since: ' . $datePhrase);
 
         $pageNumber = 1;    // starting page number
         $pageSize = 100000;
@@ -157,91 +162,83 @@ class ARTestController extends Controller
             ++$pageNumber;
         }
 
-        echo '<pre>';
-        print_r(count($customers));
-        echo '</pre>';
-        echo '<pre>';
-        print_r($customers);
-        echo '</pre>';
+        $this->showHeader('Number of customers: '.count($customers));
+        $this->showResults($customers);
+        $this->showIndex();
     }
 
     public function createcustomer($request)
     {
-        $memberID = (int) $request->param('ID');
+        $this->setApis();
+
+        $memberID = ((int) $request->Param('ID')) ?:  rand(100000, 9999999);
         if ($memberID) {
-            $this->setApis();
             $member = Member::get_by_id($memberID);
 
             if ($member && $member->exists()) {
                 $result = $this->arConnectionCustomerOrder->createCustomer($member);
                 echo 'If the following is an integer, an customer has successfully been created';
                 echo '<pre>';
-                var_dump($result);
+                $this->showResults($result);
                 echo '</pre>';
             } else {
                 echo 'There is no matching member in the database';
             }
         } else {
-            echo 'You need to add an memberID to the end of this link, eg: /ar-test/createcustomer/123123';
         }
+        $this->showExplanation('You need to add an memberID to the end of this link', 'createcustomer/123123');
+        $this->showIndex();
     }
 
     public function getproduct($request)
     {
         $this->setApis();
 
-
-        $itemid = $request->Param('ID');
-
-        if (isset($itemid)) {
-            $product = $this->arConnectionProductDetails->getProductDetails($itemid);
-            echo '<pre>';
-            var_dump($product);
-            echo '</pre>';
-        } else {
-            echo 'Item ID is missing in request!';
-        }
+        $itemid = ((int) $request->Param('ID')) ?:  rand(100000, 9999999);
+        $this->showHeader('Show details for Product with ID = '.$itemid);
+        $this->showResults($this->arConnectionProductDetails->getProductDetails($itemid));
+        $this->showExplanation('Use like this:', 'getproduct/123123');
+        $this->showIndex();
     }
 
     public function getextradetails($request)
     {
         $this->setApis();
 
+        $itemid = ((int) $request->Param('ID')) ?: rand(100000, 9999999);
+        $this->showHeader('Show extra details for Product with ID = '.$itemid);
 
-        $itemid = $request->Param('ID');
-
-        if (isset($itemid)) {
-            $product = $this->arConnectionProductDetails->getProductDetailsExtra($itemid);
-            var_dump($product);
-        } else {
-            echo 'Item ID is missing in request!';
-        }
+        $this->showResults($this->arConnectionProductDetails->getProductDetailsExtra($itemid));
+        $this->showIndex();
     }
 
     public function getallextradetails()
     {
         $this->setApis();
-
         $this->arConnectionProductDetails->getAllProductDetailsExtra();
+        $this->showIndex();
     }
 
     public function getproductschanged($request)
     {
         $this->setApis();
+        $datePhrase = '1 year ago';
+        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime($datePhrase));
+        $this->showHeader('Fetching data since: ' . $datePhrase);
 
-
-        $products = $this->arConnectionProductDetails->getProductsChanged('2015-09-27T21:11:12.532Z', true);
-        var_dump($products);
+        $this->showResults($this->arConnectionProductDetails->getProductsChanged($since, true));
+        $this->showIndex();
     }
 
     public function getallproductdetails($request)
     {
-        $since = '2015-09-27T21:11:12.532Z';
-        self::do_flush('<h3>Fetching data since: ' . $since . '</h3>');
-        self::do_flush('<hr />');
+        $this->setApis();
+
+        $datePhrase = '1 year ago';
+        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime($datePhrase));
+        $this->showHeader('Fetching data since: ' . $datePhrase);
 
         // $arConnector = Injector::inst()->get(ARConnector::class);
-        $this->setApis();
 
 
         // get the basic data of all products
@@ -276,15 +273,11 @@ class ARTestController extends Controller
                     $currentItemId = $itemData[$totalCount]['itemId'];
                     $itemDetail = $this->arConnectionProductDetails->getProductDetails($currentItemId);
                     $itemDetails[$totalCount] = $itemDetail;
-                    ob_start();
-                    var_dump($itemDetail);
-                    $output = '<pre>' . ob_get_clean() . '</pre>';
-                    self::do_flush($output);
-                    self::do_flush('<hr />');
+                    $this->showResults($itemDetail);
                 } else {
                     // need this or else API server will crash
-                    self::do_flush('Removed item: SKIPPED <br />');
-                    self::do_flush('<hr />');
+                    self::do_flush('Removed item: SKIPPED');
+                    self::do_flush('---------------------------');
                 }
 
                 ++$totalCount;
@@ -305,13 +298,10 @@ class ARTestController extends Controller
             ARConnector::convert_silverstripe_to_ar_date('1 jan 1980'),
             ARConnector::convert_silverstripe_to_ar_date('tomorrow')
         );
-        $this->promos = $response['data'];
-        echo '<pre>';
-        var_dump($this->promos);
-        echo '</pre>';
+        $this->showResults($response['data']);
     }
 
-    protected function getApi()
+    protected function setApis()
     {
         $this->arConnectionCustomerDetails = Injector::inst()->get(CustomerDetails::class)->setDebug(true);
         $this->arConnectionCustomerOrder = Injector::inst()->get(CustomerOrder::class)->setDebug(true);
@@ -321,4 +311,34 @@ class ARTestController extends Controller
         $this->arConnectionProductPrices = Injector::inst()->get(ProductPrices::class)->setDebug(true);
         $this->arConnectionProductStock = Injector::inst()->get(ProductStock::class)->setDebug(true);
     }
+
+    protected function showHeader(string $header)
+    {
+        FlushNow::do_flush_heading($header);
+    }
+
+    protected function showIndex()
+    {
+        echo '<h2>Tests</h2>';
+        echo '<ul>';
+        foreach(array_keys(self::$allowed_actions) as $action) {
+            echo '<li><a href="'.Director::absoluteURL($this->Link($action)).'">'.$action.'</a></li>';
+        }
+        echo '</ul>';
+
+    }
+
+    protected function showExplanation(string $explanation, string $action)
+    {
+        FlushNow::do_flush($explanation);
+        FlushNow::do_flush($this->Link($action));
+    }
+
+    protected function showResults($results)
+    {
+        echo '<pre>';
+        print_r($results);
+        echo '</pre>';
+    }
+
 }

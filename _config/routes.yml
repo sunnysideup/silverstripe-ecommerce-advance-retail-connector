@@ -1,3 +1,7 @@
+---
+Name: ecommerce-advance-retail-connector-routes
+After: '#coreroutes'
+---
 SilverStripe\Control\Director:
   rules:
-    ar-test//$Action/$ID/$OtherID: Sunnysideup\EcommerceAdvanceRetailConnector\Control\ARTestController
+    admin-test/advanceretailtest//$Action/$ID/$OtherID: Sunnysideup\EcommerceAdvanceRetailConnector\Control\ARTestController
