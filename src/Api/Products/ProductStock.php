@@ -21,6 +21,8 @@ use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
 class ProductStock extends ARConnector
 {
 
+    private static $ignore_negative_stock = true;
+
     protected static $storedStockResponses = [];
 
     public function getAvailability(array $productCodes, $branchID = null): array
@@ -58,6 +60,11 @@ class ProductStock extends ARConnector
                     $productsAvailable[$itemID][self::ALL_BRANCH_ID] = $productsAvailable[$itemID][self::ALL_BRANCH_ID] ?? 0;
                     foreach ($itemData['branchAvailabilities'] as $branchData) {
                         $availablePerBranch = (int) ($branchData['available'] ?? 0);
+                        if($this->config()->get('ignore_negative_stock')) {
+                            if($availablePerBranch < 0) {
+                                $availablePerBranch =  0;
+                            }
+                        }
                         $productsAvailable[$itemID][self::ALL_BRANCH_ID] += $availablePerBranch;
                         $productsAvailable[$itemID][$branchData['branchId']] = $availablePerBranch;
                     }
