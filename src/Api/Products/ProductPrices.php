@@ -39,7 +39,7 @@ class ProductPrices extends ARConnector
         if (! $since) {
             $since = ARConnector::convert_silverstripe_to_ar_date('1 jan 1980');
         }
-        $key = preg_replace("/[^A-Za-z0-9 ]/", '', $since);
+        $key = preg_replace("/[^A-Za-z0-9 ]/", '', (string) $since);
         if(! isset(self::$price_cache[$key])) {
             $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/price/changed';
 
