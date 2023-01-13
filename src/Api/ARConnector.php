@@ -41,7 +41,7 @@ class ARConnector
 
     public static function convert_silverstripe_to_ar_date($silverstripeDate, int $adjustment = 0)
     {
-        return self::convert_ts_to_ar_date(strtotime($silverstripeDate) + $adjustment);
+        return self::convert_ts_to_ar_date(strtotime((string) $silverstripeDate) + $adjustment);
     }
 
     /**

@@ -137,7 +137,7 @@ class ARTestController extends Controller
     {
         $this->setApis();
         $datePhrase = '1 year ago';
-        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime($datePhrase));
+        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime((string) $datePhrase));
         $this->showHeader('Fetching data since: ' . $datePhrase);
 
         $pageNumber = 1;    // starting page number
@@ -223,7 +223,7 @@ class ARTestController extends Controller
     {
         $this->setApis();
         $datePhrase = '1 year ago';
-        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime($datePhrase));
+        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime((string) $datePhrase));
         $this->showHeader('Fetching data since: ' . $datePhrase);
 
         $this->showResults($this->arConnectionProductDetails->getProductsChanged($since, true));
@@ -235,7 +235,7 @@ class ARTestController extends Controller
         $this->setApis();
 
         $datePhrase = '1 year ago';
-        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime($datePhrase));
+        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime((string) $datePhrase));
         $this->showHeader('Fetching data since: ' . $datePhrase);
 
         // $arConnector = Injector::inst()->get(ARConnector::class);
