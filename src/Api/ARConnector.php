@@ -2,18 +2,14 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api;
 
-use Exception;
 // use SilverStripe\Core\Config\Config;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Message;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\Security\Member;
-use Sunnysideup\Ecommerce\Model\Order;
 use Sunnysideup\Flush\FlushNow;
 
 class ARConnector
@@ -24,25 +20,6 @@ class ARConnector
     use FlushNow;
 
     public const ALL_BRANCH_ID = 0;
-
-    private static $branches_to_be_excluded_from_stock = [];
-
-    private static $base_path = 'ARESAPI';
-
-    public function convertTsToArDate(int $ts) : string
-    {
-        return self::convert_ts_to_ar_date($ts);
-    }
-
-    public static function convert_ts_to_ar_date($ts)
-    {
-        return date('Y-m-d\\TH:i:s.000\\Z', $ts);
-    }
-
-    public static function convert_silverstripe_to_ar_date($silverstripeDate, int $adjustment = 0)
-    {
-        return self::convert_ts_to_ar_date(strtotime((string) $silverstripeDate) + $adjustment);
-    }
 
     /**
      * ARESAPI|ARESAPITest.
@@ -71,9 +48,28 @@ class ARConnector
      */
     protected $error = '';
 
+    private static $branches_to_be_excluded_from_stock = [];
+
+    private static $base_path = 'ARESAPI';
+
     public function __construct()
     {
         $this->basePath = $this->Config()->get('base_path');
+    }
+
+    public function convertTsToArDate(int $ts): string
+    {
+        return self::convert_ts_to_ar_date($ts);
+    }
+
+    public static function convert_ts_to_ar_date($ts)
+    {
+        return date('Y-m-d\\TH:i:s.000\\Z', $ts);
+    }
+
+    public static function convert_silverstripe_to_ar_date($silverstripeDate, int $adjustment = 0)
+    {
+        return self::convert_ts_to_ar_date(strtotime((string) $silverstripeDate) + $adjustment);
     }
 
     /**
@@ -93,12 +89,10 @@ class ARConnector
         return $this;
     }
 
-
     public function getDebugString(): string
     {
         return $this->debugString;
     }
-
 
     /**
      * Makes an HTTP request and sends back the response as JSON.
@@ -146,7 +140,7 @@ class ARConnector
     protected function output($v)
     {
         if ($this->debug) {
-            if(is_string($v)) {
+            if (is_string($v)) {
                 $this->debugString .= self::flush_return($v);
             } else {
                 $this->debugString .= self::flush_return('<pre>' . print_r($v, 1) . '</pre>');

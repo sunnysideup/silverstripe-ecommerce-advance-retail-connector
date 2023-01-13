@@ -2,30 +2,28 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Control;
 
-use SilverStripe\Control\Director;
 use SilverStripe\Control\Controller;
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Security\Member;
 use Sunnysideup\Ecommerce\Model\Order;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
-
-use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerOrder;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerDetails;
-
-use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductStock;
-use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductPrices;
-use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductDetails;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerOrder;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductCategories;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductDetails;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductPrices;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductStock;
 use Sunnysideup\Flush\FlushNow;
 
 class ARTestController extends Controller
 {
     use FlushNow;
 
-    private static $url_segment = 'admin-test/advanceretailtest';
+    protected $arConnectionCustomerDetails;
+    protected $arConnectionCustomerOrder;
 
-    protected $arConnectionCustomerDetails = null;
-    protected $arConnectionCustomerOrder = null;
+    private static $url_segment = 'admin-test/advanceretailtest';
 
     private $arConnectionProductCategories;
     private $arConnectionProductDetails;
@@ -69,9 +67,9 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $arOrderID = ((int) $request->param('ID')) ?: rand(1,999);
+        $arOrderID = ((int) $request->param('ID')) ?: rand(1, 999);
 
-        $this->showHeader('Order with order id = '.$arOrderID);
+        $this->showHeader('Order with order id = ' . $arOrderID);
 
         $this->showResults($this->arConnectionCustomerOrder->getCustomerOrder($arOrderID));
 
@@ -84,11 +82,11 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $orderID = (int) $request->param('ID') ;
+        $orderID = (int) $request->param('ID');
         if ($orderID) {
             $order = Order::get_order_cached((int) $orderID);
             if ($order && $order->exists()) {
-                $this->showHeader('Creating order #'.$orderID);
+                $this->showHeader('Creating order #' . $orderID);
                 $this->showResults(
                     $this->arConnectionCustomerOrder->createOrder($order)
                 );
@@ -106,9 +104,9 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $custid = ((int) $request->Param('ID')) ?: rand(0,9999);
+        $custid = ((int) $request->Param('ID')) ?: rand(0, 9999);
 
-        $this->showHeader('Getting customer with ID = '.$custid);
+        $this->showHeader('Getting customer with ID = ' . $custid);
 
         $this->showResults($this->arConnectionCustomerDetails->getCustomerDetails($custid));
 
@@ -121,9 +119,9 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $email = $request->getVar('email')?:'hello@test.com';
+        $email = $request->getVar('email') ?: 'hello@test.com';
 
-        $this->showHeader('Getting customer with Email = '.$email);
+        $this->showHeader('Getting customer with Email = ' . $email);
         $customer = $this->arConnectionCustomerDetails->getCustomerByEmail($email);
         $customer = reset($customer);
         $this->showResults($customer);
@@ -162,7 +160,7 @@ class ARTestController extends Controller
             ++$pageNumber;
         }
 
-        $this->showHeader('Number of customers: '.count($customers));
+        $this->showHeader('Number of customers: ' . count($customers));
         $this->showResults($customers);
         $this->showIndex();
     }
@@ -171,7 +169,7 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $memberID = ((int) $request->Param('ID')) ?:  rand(100000, 9999999);
+        $memberID = ((int) $request->Param('ID')) ?: rand(100000, 9999999);
         if ($memberID) {
             $member = Member::get_by_id($memberID);
 
@@ -184,8 +182,8 @@ class ARTestController extends Controller
             } else {
                 echo 'There is no matching member in the database';
             }
-        } else {
         }
+
         $this->showExplanation('You need to add an memberID to the end of this link', 'createcustomer/123123');
         $this->showIndex();
     }
@@ -194,8 +192,8 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $itemid = ((int) $request->Param('ID')) ?:  rand(100000, 9999999);
-        $this->showHeader('Show details for Product with ID = '.$itemid);
+        $itemid = ((int) $request->Param('ID')) ?: rand(100000, 9999999);
+        $this->showHeader('Show details for Product with ID = ' . $itemid);
         $this->showResults($this->arConnectionProductDetails->getProductDetails($itemid));
         $this->showExplanation('Use like this:', 'getproduct/123123');
         $this->showIndex();
@@ -206,7 +204,7 @@ class ARTestController extends Controller
         $this->setApis();
 
         $itemid = ((int) $request->Param('ID')) ?: rand(100000, 9999999);
-        $this->showHeader('Show extra details for Product with ID = '.$itemid);
+        $this->showHeader('Show extra details for Product with ID = ' . $itemid);
 
         $this->showResults($this->arConnectionProductDetails->getProductDetailsExtra($itemid));
         $this->showIndex();
@@ -239,7 +237,6 @@ class ARTestController extends Controller
         $this->showHeader('Fetching data since: ' . $datePhrase);
 
         // $arConnector = Injector::inst()->get(ARConnector::class);
-
 
         // get the basic data of all products
         // it's okay to not use paging this as it doesn't return much data
@@ -292,7 +289,6 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-
         ////'1970-01-01T00:00:00.000Z',
         $response = $this->arConnectionProductPrices->getActivePromos(
             ARConnector::convert_silverstripe_to_ar_date('1 jan 1980'),
@@ -321,11 +317,10 @@ class ARTestController extends Controller
     {
         echo '<h2>Tests</h2>';
         echo '<ul>';
-        foreach(array_keys(self::$allowed_actions) as $action) {
-            echo '<li><a href="'.Director::absoluteURL($this->Link($action)).'">'.$action.'</a></li>';
+        foreach (array_keys(self::$allowed_actions) as $action) {
+            echo '<li><a href="' . Director::absoluteURL($this->Link($action)) . '">' . $action . '</a></li>';
         }
         echo '</ul>';
-
     }
 
     protected function showExplanation(string $explanation, string $action)
@@ -340,5 +335,4 @@ class ARTestController extends Controller
         print_r($results);
         echo '</pre>';
     }
-
 }

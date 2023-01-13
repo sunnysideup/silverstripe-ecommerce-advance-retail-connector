@@ -71,7 +71,6 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
         return true;
     }
 
-
     /**
      * For some ordersteps this returns true...
      *

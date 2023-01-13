@@ -2,14 +2,11 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Model\Process;
 
-use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\ReadonlyField;
 use Sunnysideup\Ecommerce\Model\Process\OrderStatusLog;
-use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
-
-use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerOrder;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerDetails;
+use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerOrder;
 
 /**
  * @authors: Nicolaas [at] Sunny Side Up .co.nz

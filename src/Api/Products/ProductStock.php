@@ -2,28 +2,14 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products;
 
-use Exception;
 // use SilverStripe\Core\Config\Config;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Message;
-use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\Security\Member;
-use Sunnysideup\Ecommerce\Model\Order;
-use Sunnysideup\Flush\FlushNow;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
-
 
 class ProductStock extends ARConnector
 {
+    protected static $storedStockResponses = [];
 
     private static $ignore_negative_stock = true;
-
-    protected static $storedStockResponses = [];
 
     public function getAvailability(array $productCodes, $branchID = null): array
     {
@@ -41,8 +27,8 @@ class ProductStock extends ARConnector
         // if($branchID) {
         //     $data['branchIdsIncluded'] = [$branchID];
         // }
-        $this->output('<h3>submitting</h3><pre>'.print_r(json_encode($data), 1).'</pre>');
-        $this->output('<h5>Branch</h5> '.($branchID ?: 'ANY'));
+        $this->output('<h3>submitting</h3><pre>' . print_r(json_encode($data), 1) . '</pre>');
+        $this->output('<h5>Branch</h5> ' . ($branchID ?: 'ANY'));
 
         $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/inventory/availability';
         $this->output('<h5>to</h5>' . $url);
@@ -60,9 +46,9 @@ class ProductStock extends ARConnector
                     $productsAvailable[$itemID][self::ALL_BRANCH_ID] = $productsAvailable[$itemID][self::ALL_BRANCH_ID] ?? 0;
                     foreach ($itemData['branchAvailabilities'] as $branchData) {
                         $availablePerBranch = (int) ($branchData['available'] ?? 0);
-                        if($this->config()->get('ignore_negative_stock')) {
-                            if($availablePerBranch < 0) {
-                                $availablePerBranch =  0;
+                        if ($this->config()->get('ignore_negative_stock')) {
+                            if ($availablePerBranch < 0) {
+                                $availablePerBranch = 0;
                             }
                         }
                         $productsAvailable[$itemID][self::ALL_BRANCH_ID] += $availablePerBranch;
@@ -73,11 +59,12 @@ class ProductStock extends ARConnector
         }
 
         $timeTaken = round((microtime(true) - $this->startTime) * 1000) . ' microseconds (1000 microseconds in one second)';
-        $this->output('
+        $this->output(
+            '
             <h5>response: ' . print_r($productsAvailable, 1) . '</h5>
             <pre>' .
-            print_r($response, 1).
-            '</pre>'.
+            print_r($response, 1) .
+            '</pre>' .
             '<h5>Time Taken: ' . $timeTaken . '</h5>'
         );
 

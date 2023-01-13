@@ -4,24 +4,14 @@ namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders;
 
 use Exception;
 // use SilverStripe\Core\Config\Config;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Message;
 use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Security\Member;
 use Sunnysideup\Ecommerce\Model\Order;
-use Sunnysideup\Flush\FlushNow;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Helpers\OrderHelpers;
 
-
 class CustomerOrder extends ARConnector
 {
-
     /**
      * @param int $customerOrderId
      * @param int $branchId
@@ -54,7 +44,9 @@ class CustomerOrder extends ARConnector
         }
         $data = [
             'branchId' => $branchId,
-            'startDate' => $member->Created, 'dateOfBirth' => $member->Created, 'firstName' => $member->FirstName,
+            'startDate' => $member->Created,
+            'dateOfBirth' => $member->Created,
+            'firstName' => $member->FirstName,
             'lastName' => $member->Surname,
             'homeAddress' => [
                 'email' => $member->Email,

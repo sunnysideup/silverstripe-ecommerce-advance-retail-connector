@@ -2,26 +2,11 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products;
 
-use Exception;
 // use SilverStripe\Core\Config\Config;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Message;
-use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\Security\Member;
-use Sunnysideup\Ecommerce\Model\Order;
-use Sunnysideup\Flush\FlushNow;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
-
 
 class ProductPrices extends ARConnector
 {
-
-
     protected static $price_cache = [];
 
     /**
@@ -34,13 +19,12 @@ class ProductPrices extends ARConnector
         ?int $pageNumber = 0,
         ?int $pageSize = 0,
         ?string $sortDir = 'ASC'
-    ): array
-    {
+    ): array {
         if (! $since) {
             $since = ARConnector::convert_silverstripe_to_ar_date('1 jan 1980');
         }
-        $key = preg_replace("/[^A-Za-z0-9 ]/", '', (string) $since);
-        if(! isset(self::$price_cache[$key])) {
+        $key = preg_replace('/[^A-Za-z0-9 ]/', '', (string) $since);
+        if (! isset(self::$price_cache[$key])) {
             $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/price/changed';
 
             $data = [
@@ -50,15 +34,14 @@ class ProductPrices extends ARConnector
             ];
             self::$price_cache[$key] = $this->runRequest($url, 'POST', $data);
         }
+
         return self::$price_cache[$key];
     }
 
     /**
      * @param int $productCode
-     *
-     * @return array
      */
-    public function getPricesChangedForOneProduct($productCode) : array
+    public function getPricesChangedForOneProduct($productCode): array
     {
         $response = $this->getProducPricesChanged();
         $products = $response['data'];
@@ -72,11 +55,9 @@ class ProductPrices extends ARConnector
         return [];
     }
 
-
     /**
      *  Gets or sets the date range in which the promotion can be active.
-     *  The start date of the promotion must be between $toDate and $fromDate
-     *
+     *  The start date of the promotion must be between $toDate and $fromDate.
      */
     public function getActivePromos(
         ?string $fromDate = '2020-01-01T00:00:00.000Z',
@@ -104,6 +85,4 @@ class ProductPrices extends ARConnector
 
         return $this->runRequest($url, 'POST', $data);
     }
-
-
 }

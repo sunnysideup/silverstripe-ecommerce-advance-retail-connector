@@ -2,26 +2,11 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products;
 
-use Exception;
 // use SilverStripe\Core\Config\Config;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Message;
-use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\Security\Member;
-use Sunnysideup\Ecommerce\Model\Order;
-use Sunnysideup\Flush\FlushNow;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
-
 
 class ProductCategories extends ARConnector
 {
-
-
     /** CATEGORIES */
 
     /**
@@ -53,5 +38,4 @@ class ProductCategories extends ARConnector
 
         return $this->runRequest($url);
     }
-
 }

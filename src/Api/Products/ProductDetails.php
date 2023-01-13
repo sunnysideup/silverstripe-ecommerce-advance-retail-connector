@@ -2,25 +2,11 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products;
 
-use Exception;
 // use SilverStripe\Core\Config\Config;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Message;
-use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\Security\Member;
-use Sunnysideup\Ecommerce\Model\Order;
-use Sunnysideup\Flush\FlushNow;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
-
 
 class ProductDetails extends ARConnector
 {
-
     /** PRODUCTS */
 
     /**
@@ -126,7 +112,6 @@ class ProductDetails extends ARConnector
         return $itemDetails;
     }
 
-
     /**
      * @param string $since
      */
@@ -149,7 +134,7 @@ class ProductDetails extends ARConnector
         $totalItemCount = $pagingData['totalRecords'];
 
         // limits the number of items read from API for testing
-        $totalItemCountLimit = 10000*20;
+        $totalItemCountLimit = 10000 * 20;
         $totalItemCountLimit = $totalItemCount <= $totalItemCountLimit ? $totalItemCount : $totalItemCountLimit;
         $this->output('<h3>Total number of items: ' . $totalItemCount . '</h3>');
         $this->output('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
@@ -192,13 +177,10 @@ class ProductDetails extends ARConnector
         return $itemDetails;
     }
 
-
-
     public function compareProductWithBarcode(string $itemId): array
     {
         $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/search/compareWithBarcode?queryContract.itemId=' . $itemId;
 
         return $this->runRequest($url);
     }
-
 }
