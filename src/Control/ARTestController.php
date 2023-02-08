@@ -15,6 +15,7 @@ use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductDetails;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductPrices;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductStock;
 use Sunnysideup\Flush\FlushNow;
+use Sunnysideup\Flush\FlushNowImplementor;
 
 class ARTestController extends Controller
 {
@@ -91,7 +92,7 @@ class ARTestController extends Controller
                     $this->arConnectionCustomerOrder->createOrder($order)
                 );
             } else {
-                FlushNow::do_flush('There is no matching order in the database', 'deleted');
+                FlushNowImplementor::do_flush('There is no matching order in the database', 'deleted');
             }
         } else {
             $this->showExplanation('You need to add an orderID to the end of this link', 'createorder/123123');
@@ -310,7 +311,7 @@ class ARTestController extends Controller
 
     protected function showHeader(string $header)
     {
-        FlushNow::do_flush_heading($header);
+        FlushNowImplementor::do_flush_heading($header);
     }
 
     protected function showIndex()
@@ -325,8 +326,8 @@ class ARTestController extends Controller
 
     protected function showExplanation(string $explanation, string $action)
     {
-        FlushNow::do_flush($explanation);
-        FlushNow::do_flush($this->Link($action));
+        FlushNowImplementor::do_flush($explanation);
+        FlushNowImplementor::do_flush($this->Link($action));
     }
 
     protected function showResults($results)
