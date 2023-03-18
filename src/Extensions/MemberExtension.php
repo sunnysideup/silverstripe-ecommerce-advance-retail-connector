@@ -12,15 +12,21 @@ class MemberExtension extends DataExtension
         'AdvanceRetailCustomerID' => 'Int',
     ];
 
+    private static $indexes = [
+        'AdvanceRetailCustomerID' => true,
+    ];
+
     public function updateCMSFields(FieldList $fields)
     {
         $owner = $this->getOwner();
         $fields->addFieldsToTab(
             'Root.AdvanceRetail',
-            ReadonlyField::create(
-                'AdvanceRetailCustomerID',
-                'AR Customer ID'
-            )
+            [
+                ReadonlyField::create(
+                    'AdvanceRetailCustomerID',
+                    'AR Customer ID'
+                )
+            ]
         );
 
         return $fields;
