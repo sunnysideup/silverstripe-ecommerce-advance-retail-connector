@@ -7,10 +7,8 @@ use Sunnysideup\Ecommerce\Model\Order;
 use Sunnysideup\Ecommerce\Model\Process\OrderStep;
 
 /**
- * @authors: Nicolaas [at] Sunny Side Up .co.nz
- * @package: ecommerce
- * @sub-package: model
- * @inspiration: Silverstripe Ltd, Jeremy
+ * Class \Sunnysideup\EcommerceAdvanceRetailConnector\Model\Process\OrderStepSendOrderToAdvanceRetail
+ *
  */
 class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepInterface
 {

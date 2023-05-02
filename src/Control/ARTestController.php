@@ -17,6 +17,10 @@ use Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products\ProductStock;
 use Sunnysideup\Flush\FlushNow;
 use Sunnysideup\Flush\FlushNowImplementor;
 
+/**
+ * Class \Sunnysideup\EcommerceAdvanceRetailConnector\Control\ARTestController
+ *
+ */
 class ARTestController extends Controller
 {
     use FlushNow;

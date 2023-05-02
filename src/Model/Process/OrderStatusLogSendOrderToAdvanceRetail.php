@@ -9,10 +9,10 @@ use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerD
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerOrder;
 
 /**
- * @authors: Nicolaas [at] Sunny Side Up .co.nz
- * @package: ecommerce
- * @sub-package: model
- * @inspiration: Silverstripe Ltd, Jeremy
+ * Class \Sunnysideup\EcommerceAdvanceRetailConnector\Model\Process\OrderStatusLogSendOrderToAdvanceRetail
+ *
+ * @property int $AdvanceRetailCustomerOrderID
+ * @property int $AdvanceRetailCustomerID
  */
 class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
 {

@@ -6,6 +6,12 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataExtension;
 
+/**
+ * Class \Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\MemberExtension
+ *
+ * @property \SilverStripe\Security\Member|\Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\MemberExtension $owner
+ * @property int $AdvanceRetailCustomerID
+ */
 class MemberExtension extends DataExtension
 {
     private static $db = [
