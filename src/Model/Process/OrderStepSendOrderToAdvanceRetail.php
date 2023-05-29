@@ -74,7 +74,7 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
      *
      * @return bool
      */
-    protected function hasCustomerMessage()
+    public function hasCustomerMessage()
     {
         return false;
     }
