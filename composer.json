@@ -22,7 +22,7 @@
     "require": {
         "sunnysideup/ecommerce": "*",
         "silverstripe/recipe-cms": "^4.0 || ^5.0",
-        "guzzlehttp/guzzle": "^6.5 || ^7.0",
+        "guzzlehttp/guzzle": "*",
         "sunnysideup/flush": "dev-master"
     },
     "autoload": {
