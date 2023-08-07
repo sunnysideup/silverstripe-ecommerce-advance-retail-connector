@@ -142,10 +142,12 @@ class OrderHelpers
         $orderAddress = $order->{$addressType}();
 
         if ($orderAddress && $orderAddress->exists()) {
+            $orderAddress->setFieldsToMatchBillingAddress();
             $address = [
                 'id' => 0, //should this come from AR?
                 'name' => $orderAddress->FirstName . ' ' . $orderAddress->Surname,
                 'address' => [
+                    $orderAddress->CompanyName,
                     $orderAddress->Address,
                     $orderAddress->Address2,
                     $orderAddress->City,
