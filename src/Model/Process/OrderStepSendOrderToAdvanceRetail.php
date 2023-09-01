@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Model\Process;
 
+use SilverStripe\Control\Director;
 use Sunnysideup\Ecommerce\Interfaces\OrderStepInterface;
 use Sunnysideup\Ecommerce\Model\Order;
 use Sunnysideup\Ecommerce\Model\Process\OrderStep;
@@ -57,6 +58,9 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
      */
     public function doStep(Order $order): bool
     {
+        if(Director::isDev()) {
+            return true;
+        }
         $logsExist = $this->RelevantLogEntries($order)->exists();
         if (! $logsExist) {
             $className = $this->getRelevantLogEntryClassName();
