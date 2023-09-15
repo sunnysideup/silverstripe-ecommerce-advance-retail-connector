@@ -48,7 +48,7 @@ class OrderHelpers
                     'lineNumber' => $lineNumber,
                     'itemId' => $orderItem->getInternalItemID(),
                     'description' => $orderItem->getBuyableMoreDetails(),
-                    'quantity' => $orderItem->Quantity,
+                    'quantity' => -1 * $orderItem->Quantity, //
                     'unitPrice' => $orderItem->getUnitPrice(),
                     'unitCost' => 0, // what should we put here?
                     'tax' => round($taxModifier->getTotalTaxPerLineItem($orderItem)),
