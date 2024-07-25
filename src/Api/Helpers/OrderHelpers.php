@@ -4,6 +4,7 @@ namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\Helpers;
 
 use SilverStripe\Core\Config\Config;
 use Sunnysideup\Ecommerce\Config\EcommerceConfig;
+use Sunnysideup\Ecommerce\Model\Money\EcommercePayment;
 use Sunnysideup\Ecommerce\Model\Order;
 use Sunnysideup\EcommerceDelivery\Modifiers\PickUpOrDeliveryModifier;
 use Sunnysideup\EcommerceTax\Modifiers\GSTTaxModifier;
@@ -101,6 +102,7 @@ class OrderHelpers
         $orderPayments = $order->Payments();
 
         if ($orderPayments->exists()) {
+            /** @var EcommercePayment $orderPayment */
             foreach ($orderPayments as $orderPayment) {
                 $payments[] = [
                     'id' => '', //what should this be? - if it is more than one character we get this error: The field TenderId must be a string or array type with a maximum length of '1'
