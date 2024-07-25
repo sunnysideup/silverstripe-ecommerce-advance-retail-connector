@@ -68,7 +68,7 @@ class ProductPrices extends ARConnector
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/promotions/pricePromotions/active';
+        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/promotions/active';
 
         $activeBetween = [
             'from' => $fromDate,
