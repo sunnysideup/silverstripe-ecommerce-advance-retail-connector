@@ -24,7 +24,7 @@ class CustomerDetails extends ARConnector
         ?string $sortOrder = 'customerId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers/changed';
+        $url = $this->makeUrlFromSegments('customers/changed');
         $data = [
             'since' => $since,
             'pageNumber' => $pageNumber,
@@ -71,7 +71,7 @@ class CustomerDetails extends ARConnector
 
     public function getCustomerDetails(string $customerId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers//' . $customerId;
+        $url = $this->makeUrlFromSegments('customers/' . $customerId);
 
         return $this->runRequest($url);
     }
@@ -81,7 +81,7 @@ class CustomerDetails extends ARConnector
         $data = [
             'email' => $email,
         ];
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers/search/detailed';
+        $url = $this->makeUrlFromSegments('customers/search/detailed');
         $result = $this->runRequest($url, 'POST', $data);
 
         return isset($result['data']) ? $result['data'] : [];
