@@ -25,7 +25,7 @@ class ProductPrices extends ARConnector
         }
         $key = preg_replace('/[^A-Za-z0-9 ]/', '', (string) $since);
         if (! isset(self::$price_cache[$key])) {
-            $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/price/changed';
+            $url = $this->makeUrlFromSegments('products/price/changed');
 
             $data = [
                 'changedSince' => $since,
@@ -68,7 +68,7 @@ class ProductPrices extends ARConnector
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/promotions/active';
+        $url = $this->makeUrlFromSegments('promotions/active');
 
         $activeBetween = [
             'from' => $fromDate,

@@ -30,7 +30,7 @@ class ProductStock extends ARConnector
         $this->output('<h3>submitting</h3><pre>' . print_r(json_encode($data), 1) . '</pre>');
         $this->output('<h5>Branch</h5> ' . ($branchID ?: 'ANY'));
 
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/inventory/availability';
+        $url = $this->makeUrlFromSegments('products/inventory/availability');
         $this->output('<h5>to</h5>' . $url);
         $dataKey = serialize($data);
         if (! isset(self::$storedStockResponses[$dataKey])) {

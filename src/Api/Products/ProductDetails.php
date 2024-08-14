@@ -25,7 +25,7 @@ class ProductDetails extends ARConnector
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/changed';
+        $url = $this->makeUrlFromSegments('products/changed');
 
         $data = [
             'since' => $since,
@@ -40,14 +40,14 @@ class ProductDetails extends ARConnector
 
     public function getProductDetails(string $productId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/details/' . $productId;
+        $url = $this->makeUrlFromSegments('products/details/' . $productId);
 
         return $this->runRequest($url);
     }
 
     public function getProductDetailsExtra(string $productId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/' . $productId . '/extraDetails';
+        $url = $this->makeUrlFromSegments('products/' . $productId . '/extraDetails');
 
         return $this->runRequest($url);
     }
@@ -179,7 +179,7 @@ class ProductDetails extends ARConnector
 
     public function compareProductWithBarcode(string $itemId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/products/search/compareWithBarcode?queryContract.itemId=' . $itemId;
+        $url = $this->makeUrlFromSegments('products/search/compareWithBarcode?queryContract.itemId=' . $itemId);
 
         return $this->runRequest($url);
     }
