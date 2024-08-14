@@ -22,7 +22,7 @@ class CustomerOrder extends ARConnector
         ?int $branchId = 1,
         ?int $workstationId = 0
     ): array {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customerOrder/details';
+        $url = $this->makeUrlFromSegments('customerOrder/details') ;
         $data = [
             'customerOrderId' => $customerOrderId,
             'branchId' => $branchId,
@@ -53,7 +53,7 @@ class CustomerOrder extends ARConnector
             ],
         ];
 
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customers';
+        $url = $this->makeUrlFromSegments('customers');
 
         try {
             $result = $this->runRequest($url, 'POST', $data);
@@ -110,7 +110,7 @@ class CustomerOrder extends ARConnector
             'deliveryAddress' => OrderHelpers::get_address($order, 'ShippingAddress'),
         ];
 
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/customerOrder';
+        $url = $this->makeUrlFromSegments('customerOrder');
 
         try {
             $result = $this->runRequest($url, 'POST', $data);
