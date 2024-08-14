@@ -3,8 +3,11 @@
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api;
 
 // use SilverStripe\Core\Config\Config;
+
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Message;
 use SilverStripe\Control\Controller;
@@ -107,9 +110,10 @@ class ARConnector
     /**
      * Makes an HTTP request and sends back the response as JSON.
      */
-    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [])
+    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = []): array
     {
         $client = new Client();
+        $response = null;
 
         try {
             $response = $client->request(
@@ -119,14 +123,18 @@ class ARConnector
                     'json' => $data,
                 ]
             );
-        } catch (RequestException $requestException) {
-            $this->logError(Message::toString($requestException->getRequest()));
-            if ($requestException->hasResponse()) {
-                $this->logError(Message::toString($requestException->getResponse()));
-            }
+        } catch (ConnectException $connectException) {
+            $this->logError('Connection error: ' . $connectException->getMessage());
         } catch (ClientException $clientException) {
-            $this->logError(Message::toString($clientException->getRequest()));
-            $this->logError(Message::toString($clientException->getResponse()));
+            $this->logError('Client error: ' . Message::toString($clientException->getRequest()));
+            $this->logError('Client error response: ' . Message::toString($clientException->getResponse()));
+        } catch (RequestException $requestException) {
+            $this->logError('Request error: ' . Message::toString($requestException->getRequest()));
+            if ($requestException->hasResponse()) {
+                $this->logError('Request error response: ' . Message::toString($requestException->getResponse()));
+            }
+        } catch (Exception $exception) {
+            $this->logError('Unexpected error: ' . $exception->getMessage());
         }
 
         if (empty($response)) {
