@@ -14,7 +14,7 @@ class ProductCategories extends ARConnector
      */
     public function getCategories(int $categoryType): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/categories/code/search/info?categoryType=' . $categoryType . '&searchKey=*&pagingInfo.sort=*';
+        $url = $this->makeUrlFromSegments('categories/code/search/info?categoryType=' . $categoryType . '&searchKey=*&pagingInfo.sort=*');
 
         return $this->runRequest($url);
     }
@@ -24,7 +24,7 @@ class ProductCategories extends ARConnector
      */
     public function getSubCategories(string $categoryId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/subcategories/code/search/info?categoryId=' . urlencode($categoryId) . '&searchKey=*&pagingInfo.sort=*';
+        $url = $this->makeUrlFromSegments('subcategories/code/search/info?categoryId=' . urlencode($categoryId) . '&searchKey=*&pagingInfo.sort=*');
 
         return $this->runRequest($url);
     }
@@ -34,7 +34,7 @@ class ProductCategories extends ARConnector
      */
     public function getSubSubCategories(string $categoryId, string $subCategoryId): array
     {
-        $url = $this->Config()->get('base_url') . '/' . $this->basePath . '/subcategories/code/search/info?categoryId=' . $categoryId . '&subCategoryId=' . $subCategoryId . '&searchKey=*&pagingInfo.sort=*';
+        $url = $this->makeUrlFromSegments('subcategories/code/search/info?categoryId=' . $categoryId . '&subCategoryId=' . $subCategoryId . '&searchKey=*&pagingInfo.sort=*');
 
         return $this->runRequest($url);
     }
