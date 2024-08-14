@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Message;
+use SilverStripe\Control\Controller;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
@@ -92,6 +93,15 @@ class ARConnector
     public function getDebugString(): string
     {
         return $this->debugString;
+    }
+
+    protected function makeUrlFromSegments(string ...$links): string
+    {
+        return Controller::join_links(
+            $this->Config()->get('base_url'),
+            $this->basePath,
+            ...$links
+        );
     }
 
     /**
