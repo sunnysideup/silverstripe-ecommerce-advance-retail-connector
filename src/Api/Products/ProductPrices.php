@@ -64,12 +64,12 @@ class ProductPrices extends ARConnector
         ?string $toDate = '2022-01-18T00:00:00.000Z',
         ?bool $getAllRecords = false,
         ?int $pageNumber = 1,
-        ?int $pageSize = 100,
+        ?int $pageSize = 1000,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
     ): array {
-        $url = $this->makeUrlFromSegments('promotions/active');
-
+        // $url = $this->makeUrlFromSegments('promotions/active'); // old url!
+        $url = $this->makeUrlFromSegments('promotions/pricePromotions/active');
         $activeBetween = [
             'from' => $fromDate,
             'to' => $toDate,
