@@ -85,4 +85,35 @@ class ProductPrices extends ARConnector
 
         return $this->runRequest($url, 'POST', $data);
     }
+
+    /**
+     *  Gets or sets the date range in which the promotion can be active.
+     *  The start date of the promotion must be between $toDate and $fromDate.
+     * @deprec 2024-09-01
+     */
+    public function getActivePromosOld(
+        ?string $fromDate = '2020-01-01T00:00:00.000Z',
+        ?string $toDate = '2022-01-18T00:00:00.000Z',
+        ?bool $getAllRecords = false,
+        ?int $pageNumber = 1,
+        ?int $pageSize = 1000,
+        ?string $sortOrder = 'itemId',
+        ?string $sortDir = 'ASC'
+    ): array {
+        $url = $this->makeUrlFromSegments('promotions/active'); // old url!
+        $activeBetween = [
+            'from' => $fromDate,
+            'to' => $toDate,
+        ];
+
+        $data = [
+            'activeBetween' => $activeBetween,
+            'pageNumber' => $pageNumber, // if you input 0 will be treated as page 1
+            'pageSize' => $getAllRecords ? 0 : $pageSize, //0 will return all records
+            'sort' => $sortOrder,
+            'dir' => $sortDir,
+        ];
+
+        return $this->runRequest($url, 'POST', $data);
+    }
 }
