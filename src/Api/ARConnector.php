@@ -110,7 +110,7 @@ class ARConnector
     /**
      * Makes an HTTP request and sends back the response as JSON.
      */
-    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = []): array
+    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = []): array|string
     {
         $client = new Client();
         $response = null;
