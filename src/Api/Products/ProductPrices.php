@@ -41,7 +41,7 @@ class ProductPrices extends ARConnector
     /**
      * @param int $productCode
      */
-    public function getPricesChangedForOneProduct($productCode): array
+    public function getPricesChangedForOneProduct($productCode): array|string
     {
         $response = $this->getProducPricesChanged();
         $products = $response['data'];
@@ -67,7 +67,7 @@ class ProductPrices extends ARConnector
         ?int $pageSize = 1000,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
-    ): array {
+    ): array|string {
         // $url = $this->makeUrlFromSegments('promotions/active'); // old url!
         $url = $this->makeUrlFromSegments('promotions/pricePromotions/active');
         $activeBetween = [
@@ -99,7 +99,7 @@ class ProductPrices extends ARConnector
         ?int $pageSize = 1000,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
-    ): array {
+    ): array|string {
         $url = $this->makeUrlFromSegments('promotions/active'); // old url!
         $activeBetween = [
             'from' => $fromDate,

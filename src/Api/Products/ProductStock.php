@@ -11,7 +11,7 @@ class ProductStock extends ARConnector
 
     private static $ignore_negative_stock = true;
 
-    public function getAvailability(array $productCodes, $branchID = null): array
+    public function getAvailability(array $productCodes, $branchID = null): array|string
     {
         if ($this->debug) {
             $this->startTime = microtime(true);

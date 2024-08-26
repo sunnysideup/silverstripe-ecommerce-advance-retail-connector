@@ -39,7 +39,7 @@ class CustomerDetails extends ARConnector
     /**
      * @param string $since
      */
-    public function getAllCustomerDetails(?string $since = '2015-09-27T21:11:12.532Z'): array
+    public function getAllCustomerDetails(?string $since = '2015-09-27T21:11:12.532Z'): array|string
     {
         $this->output('<h3>Fetching data since: ' . $since . '</h3>');
 
@@ -69,14 +69,14 @@ class CustomerDetails extends ARConnector
         return $customers;
     }
 
-    public function getCustomerDetails(string $customerId): array
+    public function getCustomerDetails(string $customerId): array|string
     {
         $url = $this->makeUrlFromSegments('customers/' . $customerId);
 
         return $this->runRequest($url);
     }
 
-    public function getCustomerByEmail(string $email): array
+    public function getCustomerByEmail(string $email): array|string
     {
         $data = [
             'email' => $email,
