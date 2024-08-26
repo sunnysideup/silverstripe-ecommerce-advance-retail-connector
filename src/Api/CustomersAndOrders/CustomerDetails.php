@@ -39,7 +39,7 @@ class CustomerDetails extends ARConnector
     /**
      * @param string $since
      */
-    public function getAllCustomerDetails(?string $since = '2015-09-27T21:11:12.532Z'): array|string
+    public function getAllCustomerDetails(?string $since = '2015-09-27T21:11:12.532Z'): array
     {
         $this->output('<h3>Fetching data since: ' . $since . '</h3>');
 
@@ -65,18 +65,21 @@ class CustomerDetails extends ARConnector
             ++$pageNumber;
         }
         $this->output($customers);
-
+        if(!is_array($customers)) {
+            $this->logError('Invalid JSON response: ' .print_r($customers, 1));
+            return [];
+        }
         return $customers;
     }
 
-    public function getCustomerDetails(string $customerId): array|string
+    public function getCustomerDetails(string $customerId): array
     {
         $url = $this->makeUrlFromSegments('customers/' . $customerId);
 
         return $this->runRequest($url);
     }
 
-    public function getCustomerByEmail(string $email): array|string
+    public function getCustomerByEmail(string $email): array
     {
         $data = [
             'email' => $email,
@@ -84,6 +87,6 @@ class CustomerDetails extends ARConnector
         $url = $this->makeUrlFromSegments('customers/search/detailed');
         $result = $this->runRequest($url, 'POST', $data);
 
-        return isset($result['data']) ? $result['data'] : [];
+        return isset($result['data']) && is_array($result['data']) ? $result['data'] : [];
     }
 }

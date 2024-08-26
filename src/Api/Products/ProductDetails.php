@@ -38,14 +38,14 @@ class ProductDetails extends ARConnector
         return $this->runRequest($url, 'POST', $data);
     }
 
-    public function getProductDetails(string $productId): array|string
+    public function getProductDetails(string $productId): array
     {
         $url = $this->makeUrlFromSegments('products/details/' . $productId);
 
         return $this->runRequest($url);
     }
 
-    public function getProductDetailsExtra(string $productId): array|string
+    public function getProductDetailsExtra(string $productId): array
     {
         $url = $this->makeUrlFromSegments('products/' . $productId . '/extraDetails');
 
@@ -55,7 +55,7 @@ class ProductDetails extends ARConnector
     /**
      * @param string $since
      */
-    public function getAllProductDetails(?string $since = '2015-09-27T21:11:12.532Z'): array|string
+    public function getAllProductDetails(?string $since = '2015-09-27T21:11:12.532Z'): array
     {
         $this->output('<h3>Fetching data since: ' . $since . '</h3>');
         $this->output('<hr />');
@@ -108,14 +108,17 @@ class ProductDetails extends ARConnector
                 }
             }
         }
-
+        if(!is_array($itemDetails)) {
+            $this->logError('Invalid JSON response: ' .print_r($itemDetails, 1));
+            return [];
+        }
         return $itemDetails;
     }
 
     /**
      * @param string $since
      */
-    public function getAllProductDetailsExtra(?string $since = '2015-09-27T21:11:12.532Z'): array|string
+    public function getAllProductDetailsExtra(?string $since = '2015-09-27T21:11:12.532Z'): array
     {
         //$since = '2015-09-27T21:11:12.532Z';
         $this->output('<h3>Fetching data since: ' . $since . '</h3>');
@@ -173,11 +176,14 @@ class ProductDetails extends ARConnector
                 }
             }
         }
-
+        if(!is_array($itemDetails)) {
+            $this->logError('Invalid JSON response: ' .print_r($itemDetails, 1));
+            return [];
+        }
         return $itemDetails;
     }
 
-    public function compareProductWithBarcode(string $itemId): array|string
+    public function compareProductWithBarcode(string $itemId): array
     {
         $url = $this->makeUrlFromSegments('products/search/compareWithBarcode?queryContract.itemId=' . $itemId);
 

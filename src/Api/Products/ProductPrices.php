@@ -34,14 +34,17 @@ class ProductPrices extends ARConnector
             ];
             self::$price_cache[$key] = $this->runRequest($url, 'POST', $data);
         }
-
+        if(!is_array(self::$price_cache[$key])) {
+            $this->logError('Invalid JSON response: ' .print_r(self::$price_cache[$key], 1));
+            return [];
+        }
         return self::$price_cache[$key];
     }
 
     /**
      * @param int $productCode
      */
-    public function getPricesChangedForOneProduct($productCode): array|string
+    public function getPricesChangedForOneProduct($productCode): array
     {
         $response = $this->getProducPricesChanged();
         $products = $response['data'];
@@ -67,7 +70,7 @@ class ProductPrices extends ARConnector
         ?int $pageSize = 1000,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
-    ): array|string {
+    ): array {
         // $url = $this->makeUrlFromSegments('promotions/active'); // old url!
         $url = $this->makeUrlFromSegments('promotions/pricePromotions/active');
         $activeBetween = [
@@ -99,7 +102,7 @@ class ProductPrices extends ARConnector
         ?int $pageSize = 1000,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
-    ): array|string {
+    ): array {
         $url = $this->makeUrlFromSegments('promotions/active'); // old url!
         $activeBetween = [
             'from' => $fromDate,

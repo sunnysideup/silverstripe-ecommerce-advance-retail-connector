@@ -110,7 +110,7 @@ class ARConnector
     /**
      * Makes an HTTP request and sends back the response as JSON.
      */
-    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = []): array|string
+    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = []): array
     {
         $client = new Client();
         $response = null;
@@ -143,11 +143,17 @@ class ARConnector
             return [];
         }
 
-        return json_decode($response->getBody()->getContents(), true);
+        $return = json_decode($response->getBody()->getContents(), true);
+        if(!is_array($return)) {
+            $this->logError('Invalid JSON response: ' . $return);
+            return [];
+        }
+        return $return;
     }
 
     protected function logError(string $error)
     {
+        user_error($error, E_USER_WARNING);
         $this->error .= '<pre>' . $error . '</pre>';
     }
 

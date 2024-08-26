@@ -64,10 +64,10 @@ class CustomerOrder extends ARConnector
 
             return [];
         }
-        if (! is_array($result)) {
-            $result = [$result];
+        if(!is_array($result)) {
+            $this->logError('Invalid JSON response: ' .print_r($result, 1));
+            return [];
         }
-
         return $result;
     }
 

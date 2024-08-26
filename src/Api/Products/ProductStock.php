@@ -11,7 +11,7 @@ class ProductStock extends ARConnector
 
     private static $ignore_negative_stock = true;
 
-    public function getAvailability(array $productCodes, $branchID = null): array|string
+    public function getAvailability(array $productCodes, $branchID = null): array
     {
         if ($this->debug) {
             $this->startTime = microtime(true);
@@ -67,7 +67,10 @@ class ProductStock extends ARConnector
             '</pre>' .
             '<h5>Time Taken: ' . $timeTaken . '</h5>'
         );
-
+        if(!is_array($productsAvailable)) {
+            $this->logError('Invalid JSON response: ' .print_r($productsAvailable, 1));
+            return [];
+        }
         return $productsAvailable;
     }
 }
