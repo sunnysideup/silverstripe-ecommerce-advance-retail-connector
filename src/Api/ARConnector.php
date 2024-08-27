@@ -153,7 +153,7 @@ class ARConnector
 
     protected function logError(string $error)
     {
-        user_error($error, E_USER_WARNING);
+        user_error($error, E_USER_NOTICE);
         $this->error .= '<pre>' . $error . '</pre>';
     }
 
