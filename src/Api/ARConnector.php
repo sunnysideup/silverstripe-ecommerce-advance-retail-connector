@@ -142,9 +142,9 @@ class ARConnector
 
             return [];
         }
-
         $return = json_decode($response->getBody()->getContents(), true);
-        if(!is_array($return)) {
+
+        if (!is_array($return)) {
             $this->logError('Invalid JSON response: ' . $return);
             return [];
         }
