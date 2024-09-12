@@ -34,7 +34,7 @@ class ProductPrices extends ARConnector
             ];
             self::$price_cache[$key] = $this->runRequest($url, 'POST', $data);
         }
-        if(!is_array(self::$price_cache[$key])) {
+        if (!is_array(self::$price_cache[$key])) {
             $this->logError('Invalid JSON response: ' .print_r(self::$price_cache[$key], 1));
             return [];
         }
@@ -47,7 +47,7 @@ class ProductPrices extends ARConnector
     public function getPricesChangedForOneProduct($productCode): array
     {
         $response = $this->getProducPricesChanged();
-        $products = $response['data'];
+        $products = $response['data'] ?? [];
         if (! empty($products)) {
             //make sure to do a false comparison because we do not know type of data.
             $key = array_search($productCode, array_column($products, 'id'), false);
