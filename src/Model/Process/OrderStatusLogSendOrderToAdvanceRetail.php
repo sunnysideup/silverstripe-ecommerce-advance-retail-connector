@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Model\Process;
 
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\ReadonlyField;
 use Sunnysideup\Ecommerce\Model\Process\OrderStatusLog;
@@ -75,38 +76,46 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
         parent::onBeforeWrite();
         $this->InternalUseOnly = true;
         if (! $this->exists()) {
-            $order = $this->getOrderCached();
-            $arConnectionCustomerDetails = Injector::inst()->get(CustomerDetails::class);
-            $arConnectionCustomerOrder = Injector::inst()->get(CustomerOrder::class);
+            if (Director::isLive()) {
+                $order = $this->getOrderCached();
+                $arConnectionCustomerDetails = Injector::inst()->get(CustomerDetails::class);
+                $arConnectionCustomerOrder = Injector::inst()->get(CustomerOrder::class);
 
-            $arCustomerID = 0;
-            $member = $order->Member();
-            if ($member && $member->exists()) {
-                //does customer and advance retail customer ID
-                $arCustomerID = $member->AdvanceRetailCustomerID;
-                if (! $arCustomerID) {
-                    $customerData = $arConnectionCustomerDetails->getCustomerByEmail($member->Email);
-                    if (empty($customerData)) {
-                        $arConnectionCustomerOrder->createCustomer($member);
-                    } else {
-                        $customerData = reset($customerData);
-                        $member->AdvanceRetailCustomerID = $customerData['customerId'];
-                        $member->write();
-                    }
+                $arCustomerID = 0;
+                $member = $order->Member();
+                if ($member && $member->exists()) {
+                    //does customer and advance retail customer ID
                     $arCustomerID = $member->AdvanceRetailCustomerID;
+                    if (! $arCustomerID) {
+                        $customerData = $arConnectionCustomerDetails->getCustomerByEmail($member->Email);
+                        if (empty($customerData)) {
+                            $arConnectionCustomerOrder->createCustomer($member);
+                        } else {
+                            $customerData = reset($customerData);
+                            $member->AdvanceRetailCustomerID = $customerData['customerId'];
+                            $member->write();
+                        }
+                        $arCustomerID = $member->AdvanceRetailCustomerID;
+                    }
                 }
-            }
 
-            $result = $arConnectionCustomerOrder->createOrder($order);
+                $result = $arConnectionCustomerOrder->createOrder($order);
 
-            if (is_int($result)) {
-                $this->AdvanceRetailCustomerOrderID = $result;
-                $this->AdvanceRetailCustomerID = $arCustomerID;
-                $order->AdvanceRetailOrderID = $result;
-                $order->write();
-                $this->Note = 'Order has successfully been created in the Advance Retail API.';
+                if (is_int($result)) {
+                    $this->AdvanceRetailCustomerOrderID = $result;
+                    $this->AdvanceRetailCustomerID = $arCustomerID;
+                    $order->AdvanceRetailOrderID = $result;
+                    $order->write();
+                    $this->Note = 'Order has successfully been created in the Advance Retail API.';
+                } elseif (is_string($result) && $result) {
+                    $this->Note = $result;
+                } elseif (is_array($result) && count($result) > 0) {
+                    $this->Note = implode(',', $result);
+                } else {
+                    $this->Note = 'Order has NOT been created in the Advance Retail API.';
+                }
             } else {
-                $this->Note = $result;
+                $this->Note = 'No action taken as the site is not in LIVE mode.';
             }
         }
     }
