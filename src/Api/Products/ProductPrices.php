@@ -3,6 +3,10 @@
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products;
 
 // use SilverStripe\Core\Config\Config;
+
+use SilverStripe\ORM\DataList;
+use Sunnysideup\Ecommerce\Pages\Product;
+use Sunnysideup\Ecommerce\Pages\ProductGroup;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
 
 class ProductPrices extends ARConnector
@@ -87,6 +91,85 @@ class ProductPrices extends ARConnector
         ];
 
         return $this->runRequest($url, 'POST', $data);
+    }
+
+    protected function getPromotionDetails(string $json): array
+    {
+        $promotionData = json_decode($json, true);
+        // Extract required data
+        $id = $promotionData['id'] ?? '';
+        $name = $promotionData['name'] ?? '';
+        $discountType = $promotionData['discountDescriptor']['type'] ?? '';
+        $discountValue = $promotionData['discountDescriptor']['value'] ?? 0;
+
+        // Item filters
+        $items = [];
+        foreach ($promotionData['bins'] as $bin) {
+            foreach ($bin['items'] as $item) {
+                $items[] = [
+                    'itemId' => $item['itemId'] ?? '',
+                    'itemType' => $item['itemType'] ?? '',
+                    'excluded' => $item['excluded'] ?? false
+                ];
+            }
+        }
+
+        // Start and end dates
+        $startDate = $promotionData['occurrenceTime']['startDate'] ?? '';
+        $endDate = $promotionData['occurrenceTime']['endDate'] ?? '';
+
+        return [
+            'id' => $id,
+            'name' => $name,
+            'discountType' => $discountType,
+            'discountValue' => $discountValue,
+            'items' => $this->getPromotionItems($items),
+            'startDate' => $startDate,
+            'endDate' => $endDate
+        ];
+    }
+
+
+    protected function getPromotionItems(array $items): DataList
+    {
+        $includeIds = [];
+        $excludeIds = [];
+        foreach ($items as $item) {
+            $itemId = $item['itemId'] ?? '';
+            $itemType = $item['itemType'] ?? '';
+            $excluded = $item['excluded'] ?? false;
+            switch ($itemType) {
+                case 'product':
+                    // Get product by ID
+                    $id = (int) Product::get()->filter('InternalItemID', $itemId)->first()?->ID;
+                    if ($id) {
+                        if ($excluded) {
+                            $excludeIds[] = $id;
+                        } else {
+                            $includeIds[] = $id;
+                        }
+                    }
+                    break;
+                case 'Category2':
+                case 'Category3':
+                    // Get products by product category
+                    $group = ProductGroup::get()->filter('InternalItemID', $itemId)->first();
+                    if ($group) {
+                        $ids = $group->getProducts()->column('ID');
+                        if ($excluded) {
+                            $excludeIds = array_merge($excludeIds, $ids);
+                        } else {
+                            $includeIds = array_merge($includeIds, $ids);
+                        }
+                    }
+                    break;
+                default:
+                    user_error('Invalid item type: ' . $itemType);
+                    // Invalid item type
+                    break;
+            }
+        }
+        return Product::get()->filter('ID', $includeIds)->exclude('ID', $excludeIds);
     }
 
     /**

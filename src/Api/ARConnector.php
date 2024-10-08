@@ -4,6 +4,7 @@ namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api;
 
 // use SilverStripe\Core\Config\Config;
 
+use DateTime;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -74,6 +75,24 @@ class ARConnector
     public static function convert_silverstripe_to_ar_date($silverstripeDate, int $adjustment = 0)
     {
         return self::convert_ts_to_ar_date(strtotime((string) $silverstripeDate) + $adjustment);
+    }
+
+    public static function convert_ar_to_ts_date(string $isoDate): int
+    {
+        // Create a DateTime object from the ISO date string
+        $date = new DateTime($isoDate);
+
+        // Convert to Unix timestamp
+        return $date->getTimestamp();
+    }
+
+    public static function convert_ar_to_silverstripe_date(string $isoDate): string
+    {
+        // Create a DateTime object from the ISO date string
+        $date = new DateTime($isoDate);
+
+        // Format the date as 'Y-m-d'
+        return $date->format('Y-m-d');
     }
 
     /**
