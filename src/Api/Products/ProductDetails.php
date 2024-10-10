@@ -108,7 +108,7 @@ class ProductDetails extends ARConnector
                 }
             }
         }
-        if(!is_array($itemDetails)) {
+        if (!is_array($itemDetails)) {
             $this->logError('Invalid JSON response: ' .print_r($itemDetails, 1));
             return [];
         }
@@ -176,7 +176,7 @@ class ProductDetails extends ARConnector
                 }
             }
         }
-        if(!is_array($itemDetails)) {
+        if (!is_array($itemDetails)) {
             $this->logError('Invalid JSON response: ' .print_r($itemDetails, 1));
             return [];
         }
@@ -185,8 +185,8 @@ class ProductDetails extends ARConnector
 
     public function compareProductWithBarcode(string $itemId): array
     {
-        $url = $this->makeUrlFromSegments('products/search/compareWithBarcode?queryContract.itemId=' . $itemId);
+        $url = $this->makeUrlFromSegments('products/search/compareWithBarcode').'?queryContract.itemId=' . $itemId;
 
-        return $this->runRequest($url);
+        return $this->runRequest($url, 'GET', [], true);
     }
 }
