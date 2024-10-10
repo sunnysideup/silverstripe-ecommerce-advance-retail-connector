@@ -49,9 +49,9 @@ class ARConnector
     protected $debugString = false;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $error = '';
+    protected $errors = [];
 
     private static $branches_to_be_excluded_from_stock = [];
 
@@ -117,6 +117,11 @@ class ARConnector
         return $this->debugString;
     }
 
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
     protected function makeUrlFromSegments(string ...$links): string
     {
         return Controller::join_links(
@@ -129,7 +134,7 @@ class ARConnector
     /**
      * Makes an HTTP request and sends back the response as JSON.
      */
-    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = []): array
+    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [], ?bool $showErrors = false): array
     {
         $client = new Client();
         $response = null;
@@ -158,22 +163,37 @@ class ARConnector
 
         if (empty($response)) {
             $this->logError('Empty Response');
-
+            $this->showErrors($uri, $showErrors, 'no response');
             return [];
         }
         $return = json_decode($response->getBody()->getContents(), true);
 
         if (!is_array($return)) {
-            $this->logError('Invalid JSON response: ' . $return);
+            $this->logError('Invalid JSON response');
+            $this->showErrors($uri, $showErrors, $response);
             return [];
         }
+        $this->showErrors($uri, $showErrors, $response);
         return $return;
+    }
+
+    protected function showErrors(string $uri, bool $showErrors, $data = null)
+    {
+        if ($showErrors) {
+            print_r($uri);
+            if (! empty($this->getErrors())) {
+                print_r($this->getErrors());
+            }
+            if(! empty($data)) {
+                print_r($data);
+            }
+        }
     }
 
     protected function logError(string $error)
     {
         // user_error($error, E_USER_NOTICE);
-        $this->error .= '<pre>' . $error . '</pre>';
+        $this->errors[] = $error;
     }
 
     //#################################################
