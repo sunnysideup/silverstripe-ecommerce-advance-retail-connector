@@ -187,6 +187,6 @@ class ProductDetails extends ARConnector
     {
         $url = $this->makeUrlFromSegments('products/search/compareWithBarcode').'?queryContract.itemId=' . $itemId;
 
-        return $this->runRequest($url, 'GET', [], true);
+        return $this->runRequest($url);
     }
 }
