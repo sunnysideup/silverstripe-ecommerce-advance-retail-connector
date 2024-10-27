@@ -184,7 +184,7 @@ class ARConnector
             if (! empty($this->getErrors())) {
                 print_r($this->getErrors());
             }
-            if(! empty($data)) {
+            if (! empty($data)) {
                 print_r($data);
             }
         }

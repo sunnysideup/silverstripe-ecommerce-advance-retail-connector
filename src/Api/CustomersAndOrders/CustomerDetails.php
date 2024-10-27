@@ -47,7 +47,7 @@ class CustomerDetails extends ARConnector
         $pageSize = 100;
 
         $customers = [];    // array containing all customers
-        $pageNumberLimit = 5;   // limit the number of resutls to 5 pages
+        $pageNumberLimit = 5;   // limit the number of results to 5 pages
         $customerCount = 0;     // number of customers read from API
 
         while ($pageNumber <= $pageNumberLimit) {
@@ -65,7 +65,7 @@ class CustomerDetails extends ARConnector
             ++$pageNumber;
         }
         $this->output($customers);
-        if(!is_array($customers)) {
+        if (!is_array($customers)) {
             $this->logError('Invalid JSON response: ' .print_r($customers, 1));
             return [];
         }
