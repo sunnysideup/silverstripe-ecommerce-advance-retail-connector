@@ -15,6 +15,8 @@ use SilverStripe\Control\Controller;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
+use Sunnysideup\Ecommerce\Pages\Product;
+use Sunnysideup\Ecommerce\Pages\ProductGroup;
 use Sunnysideup\Flush\FlushNow;
 
 class ARConnector
@@ -56,6 +58,10 @@ class ARConnector
     private static $branches_to_be_excluded_from_stock = [];
 
     private static $base_path = 'ARESAPI';
+
+    private static $class_name_for_product = Product::class;
+    private static $class_name_for_product_groups = ProductGroup::class;
+
 
     public function __construct()
     {
