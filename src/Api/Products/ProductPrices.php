@@ -5,6 +5,8 @@ namespace Sunnysideup\EcommerceAdvanceRetailConnector\Api\Products;
 // use SilverStripe\Core\Config\Config;
 
 use SilverStripe\ORM\DataList;
+use SilverStripe\ORM\DB;
+use Sunnysideup\Ecommerce\Api\ArrayMethods;
 use Sunnysideup\Ecommerce\Pages\Product;
 use Sunnysideup\Ecommerce\Pages\ProductGroup;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
@@ -14,10 +16,10 @@ class ProductPrices extends ARConnector
     protected static $price_cache = [];
 
     /**
-     * @param string $since
-     * @param int    $pageNumber
-     * @param int    $pageSize
-     */
+    * @param string $since
+    * @param int    $pageNumber
+    * @param int    $pageSize
+    */
     public function getProducPricesChanged(
         ?string $since = '',
         ?int $pageNumber = 0,
@@ -93,98 +95,6 @@ class ProductPrices extends ARConnector
         return $this->runRequest($url, 'POST', $data);
     }
 
-    public function getPromotionDetails(string|array $json): array
-    {
-        $return = [];
-        if (is_array($json)) {
-            $promotionDataList = $json;
-        } else {
-            $promotionDataList = json_decode($json, true);
-        }
-        foreach ($promotionDataList as $promotionData) {
-            // Extract required data
-            $id = $promotionData['id'] ?? '';
-            $name = $promotionData['name'] ?? '';
-            $discountType = $promotionData['discountDescriptor']['type'] ?? '';
-            $discountValue = $promotionData['discountDescriptor']['value'] ?? 0;
-
-            // Item filters
-            $items = [];
-            if (!isset($promotionData['bins'])) {
-                continue;
-            }
-            foreach ($promotionData['bins'] as $bin) {
-                foreach ($bin['items'] as $item) {
-                    $items[] = [
-                        'itemId' => $item['itemId'] ?? '',
-                        'itemType' => $item['itemType'] ?? '',
-                        'excluded' => $item['excluded'] ?? false
-                    ];
-                }
-            }
-
-            // Start and end dates
-            $startDate = $promotionData['occurrenceTime']['startDate'] ?? '';
-            $endDate = $promotionData['occurrenceTime']['endDate'] ?? '';
-
-            $return[] = [
-                'id' => $id,
-                'name' => $name,
-                'discountType' => $discountType,
-                'discountValue' => $discountValue,
-                'items' => $this->getPromotionItems($items),
-                'startDate' => $startDate,
-                'endDate' => $endDate
-            ];
-        }
-        return $return;
-    }
-
-
-    protected function getPromotionItems(array $items): DataList
-    {
-        $includeIds = [];
-        $excludeIds = [];
-        foreach ($items as $item) {
-            $itemId = $item['itemId'] ?? '';
-            $itemType = $item['itemType'] ?? '';
-            $excluded = $item['excluded'] ?? false;
-            switch ($itemType) {
-                case 'product':
-                    if ($itemId) {
-                        $id = (int) Product::get()->filter('InternalItemID', $itemId)->first()?->ID;
-                        if ($id) {
-                            if ($excluded) {
-                                $excludeIds[] = $id;
-                            } else {
-                                $includeIds[] = $id;
-                            }
-                        }
-                    }
-                    break;
-                case 'Category2':
-                case 'Category3':
-                    // Get products by product category
-                    if ($itemId) {
-                        $group = ProductGroup::get()->filter('InternalItemID', $itemId)->first();
-                        if ($group) {
-                            $ids = $group->getProducts()->column('ID');
-                            if ($excluded) {
-                                $excludeIds = array_merge($excludeIds, $ids);
-                            } else {
-                                $includeIds = array_merge($includeIds, $ids);
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    user_error('Invalid item type: ' . $itemType);
-                    // Invalid item type
-                    break;
-            }
-        }
-        return Product::get()->filter('ID', $includeIds)->exclude('ID', $excludeIds);
-    }
 
     /**
      *  Gets or sets the date range in which the promotion can be active.
@@ -216,4 +126,5 @@ class ProductPrices extends ARConnector
 
         return $this->runRequest($url, 'POST', $data);
     }
+
 }
