@@ -11,11 +11,13 @@ class ProductStock extends ARConnector
 
     private static $ignore_negative_stock = true;
 
-    public function getAvailability(array $productCodes, $branchID = null): array
+    public function getAvailability(array $productCodes, $branchID = null): ?array
     {
         if ($this->debug) {
-            $this->startTime = microtime(true);
-            $this->output('<h4>' . implode(',', $productCodes) . '</h4>');
+            if ($this->debug) {
+                $this->startTime = microtime(true);
+                $this->output('<h4>' . implode(',', $productCodes) . '</h4>');
+            }
         }
         $data = [
             'itemIds' => $productCodes,
@@ -27,20 +29,24 @@ class ProductStock extends ARConnector
         // if($branchID) {
         //     $data['branchIdsIncluded'] = [$branchID];
         // }
-        $this->output('<h3>submitting</h3><pre>' . print_r(json_encode($data), 1) . '</pre>');
-        $this->output('<h5>Branch</h5> ' . ($branchID ?: 'ANY'));
-
         $url = $this->makeUrlFromSegments('products/inventory/availability');
-        $this->output('<h5>to</h5>' . $url);
+        if ($this->debug) {
+            $this->output('<h3>submitting</h3><pre>' . print_r(json_encode($data), 1) . '</pre>');
+            $this->output('<h5>Branch</h5> ' . ($branchID ?: 'ANY'));
+            $this->output('<h5>to</h5>' . $url);
+        }
         $dataKey = serialize($data);
         if (! isset(self::$storedStockResponses[$dataKey])) {
-            self::$storedStockResponses[$dataKey] = $this->runRequest($url, 'POST', $data);
+            self::$storedStockResponses[$dataKey] = $this->runRequest($url, 'POST', $data, false, 1);
+            if (self::$storedStockResponses[$dataKey] === null) {
+                return null;
+            }
         }
         // parse the XML body
         $productsAvailable = [];
         $response = self::$storedStockResponses[$dataKey];
-        if (is_array($response) && isset($response['data'])) {
-            foreach ($response['data'] as $itemData) {
+        if (is_array($response)) {
+            foreach ($response as $itemData) {
                 if (isset($itemData['itemId'])) {
                     $itemID = $itemData['itemId'];
                     $productsAvailable[$itemID][self::ALL_BRANCH_ID] = $productsAvailable[$itemID][self::ALL_BRANCH_ID] ?? 0;
@@ -58,16 +64,15 @@ class ProductStock extends ARConnector
             }
         }
 
-        $timeTaken = round((microtime(true) - $this->startTime) * 1000) . ' microseconds (1000 microseconds in one second)';
-        $this->output(
-            '
-            <h5>response: ' . print_r($productsAvailable, 1) . '</h5>
-            <pre>' .
-            print_r($response, 1) .
-            '</pre>' .
-            '<h5>Time Taken: ' . $timeTaken . '</h5>'
-        );
-        if(!is_array($productsAvailable)) {
+        if ($this->debug) {
+            if ($this->debug) {
+                $timeTaken = round((microtime(true) - $this->startTime) * 1000) . ' microseconds (1000 microseconds in one second)';
+                $this->output('<h5>response: ' . print_r($productsAvailable, 1) . '</h5>');
+                $this->output('<pre>' . print_r($response, 1) . '</pre>');
+                $this->output('<h5>Time Taken: ' . $timeTaken . '</h5>');
+            }
+        }
+        if (!is_array($productsAvailable)) {
             $this->logError('Invalid JSON response: ' .print_r($productsAvailable, 1));
             return [];
         }

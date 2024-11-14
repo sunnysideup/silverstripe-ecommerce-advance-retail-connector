@@ -151,11 +151,10 @@ class ARTestController extends Controller
         $customerCount = 0;     // number of customers read from API
 
         while ($pageNumber <= $pageNumberLimit) {
-            $fullData = $this->arConnectionCustomerDetails->getCustomersChanged($since, false, $pageNumber, $pageSize);
-            $customerData = $fullData['data'];
-            // useful
-            // $pagingData = $fullData['paging'];
-            // $itemsOnPage = sizeof($customerData);
+            $customerData = $this->arConnectionCustomerDetails->getCustomersChanged($since, false, $pageNumber, $pageSize);
+            if (empty($customerData)) {
+                break;
+            }
 
             foreach ($customerData as $customer) {
                 $customers[$customerCount] = $customer;
@@ -245,11 +244,10 @@ class ARTestController extends Controller
 
         // get the basic data of all products
         // it's okay to not use paging this as it doesn't return much data
-        $fullData = $this->arConnectionProductDetails->getProductsChanged($since, true);
+        $itemData = $this->arConnectionProductDetails->getProductsChanged($since, true);
 
         // paging data in the products request and total number of items
-        $pagingData = $fullData['paging'];
-        $totalItemCount = $pagingData['totalRecords'];
+        $totalItemCount = $this->getLastTotalRecords();
 
         // limits the number of items read from API for testing
         $totalItemCountLimit = 50000;
@@ -258,8 +256,6 @@ class ARTestController extends Controller
         self::do_flush('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
         self::do_flush('<hr />');
 
-        // product data in the request
-        $itemData = $fullData['data'];
 
         $itemDetails = [];  // final product details array
         $totalCount = 0;    // counter for the total number of item details that have been read
@@ -299,7 +295,7 @@ class ARTestController extends Controller
             ARConnector::convert_silverstripe_to_ar_date('1 jan 1980'),
             ARConnector::convert_silverstripe_to_ar_date('tomorrow')
         );
-        $this->showResults($response['data']);
+        $this->showResults($response);
     }
 
     protected function setApis()

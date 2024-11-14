@@ -38,29 +38,34 @@ class ARConnector
     /**
      * @var float|mixed
      */
-    public $startTime;
+    public float $startTime;
 
     /**
      * @var bool
      */
-    protected $debug = false;
+    protected string $debug = false;
 
     /**
      * @var string
      */
-    protected $debugString = false;
+    protected string $debugString = false;
+
+    protected array|null $lastPagingData = null;
+
+    protected int|null $lastTotalRecords = null;
 
     /**
      * @var array
      */
-    protected $errors = [];
+    protected array $errors = [];
 
-    private static $branches_to_be_excluded_from_stock = [];
+    private static string $branches_to_be_excluded_from_stock = [];
 
-    private static $base_path = 'ARESAPI';
+    private static string $base_path = 'ARESAPI';
 
-    private static $class_name_for_product = Product::class;
-    private static $class_name_for_product_groups = ProductGroup::class;
+    private static string $class_name_for_product = Product::class;
+    private static string $class_name_for_product_groups = ProductGroup::class;
+    private static int $time_out = 2;
 
 
     public function __construct()
@@ -137,50 +142,82 @@ class ARConnector
         );
     }
 
+    public function getLastPagingData(): ?array
+    {
+        return $this->lastPagingData;
+    }
+
+    public function getLastTotalRecords(): ?int
+    {
+        return $this->lastTotalRecords;
+    }
+
     /**
      * Makes an HTTP request and sends back the response as JSON.
      */
-    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [], ?bool $showErrors = false): array
+    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [], ?bool $showErrors = false, ?int $timeoutInSeconds = 2): ?array
     {
         $client = new Client();
         $response = null;
-
+        if (!$timeoutInSeconds) {
+            $timeoutInSeconds = 2;
+        }
+        $error = false;
         try {
             $response = $client->request(
                 $method,
                 $uri,
                 [
                     'json' => $data,
+                    'timeout' => $timeoutInSeconds,
                 ]
             );
         } catch (ConnectException $connectException) {
             $this->logError('Connection error: ' . $connectException->getMessage());
+            $error = true;
         } catch (ClientException $clientException) {
             $this->logError('Client error: ' . Message::toString($clientException->getRequest()));
             $this->logError('Client error response: ' . Message::toString($clientException->getResponse()));
+            $error = true;
         } catch (RequestException $requestException) {
             $this->logError('Request error: ' . Message::toString($requestException->getRequest()));
             if ($requestException->hasResponse()) {
                 $this->logError('Request error response: ' . Message::toString($requestException->getResponse()));
             }
+            $error = true;
         } catch (Exception $exception) {
             $this->logError('Unexpected error: ' . $exception->getMessage());
+            $error = true;
         }
-
-        if (empty($response)) {
+        if ($error) {
             $this->logError('Empty Response');
             $this->showErrors($uri, $showErrors, 'no response');
-            return [];
+            return null;
         }
         $return = json_decode($response->getBody()->getContents(), true);
 
         if (!is_array($return)) {
             $this->logError('Invalid JSON response');
             $this->showErrors($uri, $showErrors, $response);
-            return [];
+            return null;
         }
         $this->showErrors($uri, $showErrors, $response);
-        return $return;
+        if (isset($return['paging'])) {
+            $this->lastPagingData = $return['paging'];
+        } else {
+            $this->lastPagingData = null;
+        }
+        if (isset($this->lastPagingData['totalRecords'])) {
+            $this->lastTotalRecords = $this->lastPagingData['totalRecords'];
+        } else {
+            $this->lastTotalRecords = null;
+        }
+        if (isset($return['data']) && is_array($return['data'])) {
+            return $return['data'];
+        } elseif (is_array($return)) {
+            return $return;
+        }
+        return null;
     }
 
     protected function showErrors(string $uri, bool $showErrors, $data = null)

@@ -25,7 +25,7 @@ class ProductPrices extends ARConnector
         ?int $pageNumber = 0,
         ?int $pageSize = 0,
         ?string $sortDir = 'ASC'
-    ): array {
+    ): ?array {
         if (! $since) {
             $since = ARConnector::convert_silverstripe_to_ar_date('1 jan 1980');
         }
@@ -38,7 +38,7 @@ class ProductPrices extends ARConnector
                 'pageNumber' => $pageNumber,
                 'pageSize' => $pageSize,
             ];
-            self::$price_cache[$key] = $this->runRequest($url, 'POST', $data);
+            self::$price_cache[$key] = $this->runRequest($url, 'POST', $data, false, 10);
         }
         if (!is_array(self::$price_cache[$key])) {
             $this->logError('Invalid JSON response: ' .print_r(self::$price_cache[$key], 1));
@@ -50,10 +50,12 @@ class ProductPrices extends ARConnector
     /**
      * @param int $productCode
      */
-    public function getPricesChangedForOneProduct($productCode): array
+    public function getPricesChangedForOneProduct($productCode): ?array
     {
-        $response = $this->getProducPricesChanged();
-        $products = $response['data'] ?? [];
+        $products = $this->getProducPricesChanged();
+        if ($products === null) {
+            return null;
+        }
         if (! empty($products)) {
             //make sure to do a false comparison because we do not know type of data.
             $key = array_search($productCode, array_column($products, 'id'), false);
@@ -76,7 +78,7 @@ class ProductPrices extends ARConnector
         ?int $pageSize = 1000,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
-    ): array {
+    ): ?array {
         // $url = $this->makeUrlFromSegments('promotions/active'); // old url!
         $url = $this->makeUrlFromSegments('promotions/pricePromotions/active');
         $activeBetween = [
@@ -92,7 +94,7 @@ class ProductPrices extends ARConnector
             'dir' => $sortDir,
         ];
 
-        return $this->runRequest($url, 'POST', $data);
+        return $this->runRequest($url, 'POST', $data, false, 10);
     }
 
 
@@ -109,7 +111,7 @@ class ProductPrices extends ARConnector
         ?int $pageSize = 1000,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
-    ): array {
+    ): ?array {
         $url = $this->makeUrlFromSegments('promotions/active'); // old url!
         $activeBetween = [
             'from' => $fromDate,
@@ -124,7 +126,7 @@ class ProductPrices extends ARConnector
             'dir' => $sortDir,
         ];
 
-        return $this->runRequest($url, 'POST', $data);
+        return $this->runRequest($url, 'POST', $data, false, 10);
     }
 
 }

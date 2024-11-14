@@ -21,7 +21,7 @@ class CustomerOrder extends ARConnector
         ?int $customerOrderId,
         ?int $branchId = 1,
         ?int $workstationId = 0
-    ): array {
+    ): ?array {
         $url = $this->makeUrlFromSegments('customerOrder/details') ;
         $data = [
             'customerOrderId' => $customerOrderId,
@@ -38,7 +38,7 @@ class CustomerOrder extends ARConnector
     public function createCustomer(
         ?Member $member,
         ?int $branchId = 1
-    ): array {
+    ): ?array {
         if ($member->AdvanceRetailCustomerID) {
             return $member->AdvanceRetailCustomerID;
         }
@@ -56,18 +56,15 @@ class CustomerOrder extends ARConnector
         $url = $this->makeUrlFromSegments('customers');
 
         try {
-            $result = $this->runRequest($url, 'POST', $data);
+            $result = $this->runRequest($url, 'POST', $data, false, 10);
             $member->AdvanceRetailCustomerID = $result;
             $member->write();
         } catch (Exception $exception) {
             $this->logError($exception->getMessage());
 
-            return [];
+            return null;
         }
-        if (!is_array($result)) {
-            $this->logError('Invalid JSON response: ' .print_r($result, 1));
-            return [];
-        }
+
         return $result;
     }
 
@@ -86,7 +83,7 @@ class CustomerOrder extends ARConnector
         ?int $customerId = 0,
         ?int $branchId = 1,
         ?int $workstationId = 0
-    ) {
+    ): array|string|null {
         if ($order->AdvanceRetailOrderID) {
             return 'This order already exists in AR with the ID: ' . $order->AdvanceRetailOrderID;
         }
@@ -113,13 +110,13 @@ class CustomerOrder extends ARConnector
         $url = $this->makeUrlFromSegments('customerOrder');
 
         try {
-            $result = $this->runRequest($url, 'POST', $data);
+            $result = $this->runRequest($url, 'POST', $data, false, 10);
             $order->AdvanceRetailOrderID = $result;
             $order->write();
         } catch (Exception $e) {
             //what should we do if the order is unable to be succesfully created?
             $this->logError($e->getMessage());
-            $result = [];
+            $result = null;
         }
 
         return $result;

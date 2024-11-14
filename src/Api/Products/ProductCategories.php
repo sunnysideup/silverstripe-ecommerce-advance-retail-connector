@@ -12,30 +12,30 @@ class ProductCategories extends ARConnector
     /**
      * Gets the basic categories (categoryType=1,2,3).
      */
-    public function getCategories(int $categoryType): array
+    public function getCategories(int $categoryType): ?array
     {
         $url = $this->makeUrlFromSegments('categories/code/search/info').'?categoryType=' . $categoryType . '&searchKey=*&pagingInfo.sort=*';
 
-        return $this->runRequest($url);
+        return $this->runRequest($url, 'GET', null, false, 10);
     }
 
     /**
      * Gets the sub categories ($categoryId is the id from getCategories e.g. "Bags & Cases").
      */
-    public function getSubCategories(string $categoryId): array
+    public function getSubCategories(string $categoryId): ?array
     {
         $url = $this->makeUrlFromSegments('subcategories/code/search/info').'?categoryId=' . urlencode($categoryId) . '&searchKey=*&pagingInfo.sort=*';
 
-        return $this->runRequest($url);
+        return $this->runRequest($url, 'GET', null, false, 10);
     }
 
     /**
      * Gets the sub sub categories (not all items have these).
      */
-    public function getSubSubCategories(string $categoryId, string $subCategoryId): array
+    public function getSubSubCategories(string $categoryId, string $subCategoryId): ?array
     {
         $url = $this->makeUrlFromSegments('subcategories/code/search/info').'?categoryId=' . $categoryId . '&subCategoryId=' . $subCategoryId . '&searchKey=*&pagingInfo.sort=*';
 
-        return $this->runRequest($url);
+        return $this->runRequest($url, 'GET', null, false, 10);
     }
 }

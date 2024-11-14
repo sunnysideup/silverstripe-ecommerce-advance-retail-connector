@@ -24,7 +24,7 @@ class ProductDetails extends ARConnector
         ?int $pageSize = 100,
         ?string $sortOrder = 'itemId',
         ?string $sortDir = 'ASC'
-    ): array {
+    ): ?array {
         $url = $this->makeUrlFromSegments('products/changed');
 
         $data = [
@@ -35,17 +35,17 @@ class ProductDetails extends ARConnector
             'dir' => $sortDir,
         ];
 
-        return $this->runRequest($url, 'POST', $data);
+        return $this->runRequest($url, 'POST', $data, false, 10);
     }
 
-    public function getProductDetails(string $productId): array
+    public function getProductDetails(string $productId): ?array
     {
         $url = $this->makeUrlFromSegments('products/details/' . $productId);
 
         return $this->runRequest($url);
     }
 
-    public function getProductDetailsExtra(string $productId): array
+    public function getProductDetailsExtra(string $productId): ?array
     {
         $url = $this->makeUrlFromSegments('products/' . $productId . '/extraDetails');
 
@@ -55,28 +55,28 @@ class ProductDetails extends ARConnector
     /**
      * @param string $since
      */
-    public function getAllProductDetails(?string $since = '2015-09-27T21:11:12.532Z'): array
+    public function getAllProductDetails(?string $since = '2015-09-27T21:11:12.532Z'): ?array
     {
-        $this->output('<h3>Fetching data since: ' . $since . '</h3>');
-        $this->output('<hr />');
+        if ($this->debug) {
+            $this->output('<h3>Fetching data since: ' . $since . '</h3>');
+            $this->output('<hr />');
+        }
 
         // get the basic data of all products
         // it's okay to not use paging this as it doesn't return much data
-        $fullData = $this->getProductsChanged($since);
+        $itemData = $this->getProductsChanged($since);
 
         // paging data in the products request and total number of items
-        $pagingData = $fullData['paging'];
-        $totalItemCount = $pagingData['totalRecords'];
+        $totalItemCount = $this->getLastTotalRecords();
 
         // limits the number of items read from API for testing
         $totalItemCountLimit = 50000;
         $totalItemCountLimit = $totalItemCount <= $totalItemCountLimit ? $totalItemCount : $totalItemCountLimit;
-        $this->output('<h3>Total number of items: ' . $totalItemCount . '</h3>');
-        $this->output('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
-        $this->output('<hr />');
-
-        // product data in the request
-        $itemData = $fullData['data'];
+        if ($this->debug) {
+            $this->output('<h3>Total number of items: ' . $totalItemCount . '</h3>');
+            $this->output('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
+            $this->output('<hr />');
+        }
 
         $itemDetails = [];  // final product details array
         $totalCount = 0;    // counter for the total number of item details that have been read
@@ -84,22 +84,31 @@ class ProductDetails extends ARConnector
 
         while ($totalCount < $totalItemCountLimit) {
             for ($count = 0; $count < $countLimit; ++$count) {
-                $this->output('<b>Item ' . $totalCount . '</b><br />');
+                if ($this->debug) {
+                    $this->output('<b>Item ' . $totalCount . '</b><br />');
+                }
 
                 // if ["action"] => "Remove" then skip (not in system anymore)
                 $currentItemAction = $itemData[$totalCount]['action'];
                 if ('Remove' !== $currentItemAction) {
                     $currentItemId = $itemData[$totalCount]['itemId'];
                     $itemDetail = $this->getProductDetails($currentItemId);
+                    if ($itemDetail === null) {
+                        return null;
+                    }
                     $itemDetails[$totalCount] = $itemDetail;
-                    $this->output($itemDetail);
-                    $output = '<pre>' . ob_get_clean() . '</pre>';
-                    $this->output($output);
-                    $this->output('<hr />');
+                    if ($this->debug) {
+                        $this->output($itemDetail);
+                        $output = '<pre>' . ob_get_clean() . '</pre>';
+                        $this->output($output);
+                        $this->output('<hr />');
+                    }
                 } else {
-                    // need this or else API server will crash
-                    $this->output('Removed item: SKIPPED <br />');
-                    $this->output('<hr />');
+                    if ($this->debug) {
+                        // need this or else API server will crash
+                        $this->output('Removed item: SKIPPED <br />');
+                        $this->output('<hr />');
+                    }
                 }
 
                 ++$totalCount;
@@ -121,8 +130,10 @@ class ProductDetails extends ARConnector
     public function getAllProductDetailsExtra(?string $since = '2015-09-27T21:11:12.532Z'): array
     {
         //$since = '2015-09-27T21:11:12.532Z';
-        $this->output('<h3>Fetching data since: ' . $since . '</h3>');
-        $this->output('<hr />');
+        if ($this->debug) {
+            $this->output('<h3>Fetching data since: ' . $since . '</h3>');
+            $this->output('<hr />');
+        }
 
         // $arConnector = Injector::inst()->get(ARConnector::class);
         //$obj = $this->getApi();
@@ -130,21 +141,21 @@ class ProductDetails extends ARConnector
 
         // get the basic data of all products
         // it's okay to not use paging this as it doesn't return much data
-        $fullData = $this->getProductsChanged($since);
+        $itemData = $this->getProductsChanged($since);
 
         // paging data in the products request and total number of items
-        $pagingData = $fullData['paging'];
-        $totalItemCount = $pagingData['totalRecords'];
+
+        $totalItemCount = $this->getLastTotalRecords();
 
         // limits the number of items read from API for testing
         $totalItemCountLimit = 10000 * 20;
         $totalItemCountLimit = $totalItemCount <= $totalItemCountLimit ? $totalItemCount : $totalItemCountLimit;
-        $this->output('<h3>Total number of items: ' . $totalItemCount . '</h3>');
-        $this->output('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
-        $this->output('<hr />');
+        if ($this->debug) {
+            $this->output('<h3>Total number of items: ' . $totalItemCount . '</h3>');
+            $this->output('<h3>Out of this, we are fetching ' . $totalItemCountLimit . ' items </h3>');
+            $this->output('<hr />');
+        }
 
-        // product data in the request
-        $itemData = $fullData['data'];
 
         $itemDetails = [];  // final product details array
         $totalCount = 0;    // counter for the total number of item details that have been read
@@ -152,7 +163,9 @@ class ProductDetails extends ARConnector
 
         while ($totalCount < $totalItemCountLimit) {
             for ($count = 0; $count < $countLimit; ++$count) {
-                $this->output('<b>Item ' . $totalCount . '</b><br />');
+                if ($this->debug) {
+                    $this->output('<b>Item ' . $totalCount . '</b><br />');
+                }
 
                 // if ["action"] => "Remove" then skip (not in system anymore)
                 $currentItemAction = $itemData[$totalCount]['action'];
@@ -160,14 +173,18 @@ class ProductDetails extends ARConnector
                     $currentItemId = $itemData[$totalCount]['itemId'];
                     $itemDetail = $this->getProductDetailsExtra($currentItemId);
                     $itemDetails[$totalCount] = $itemDetail;
-                    $this->output($itemDetail);
-                    $output = '<pre>' . ob_get_clean() . '</pre>';
-                    $this->output($output);
-                    $this->output('<hr />');
+                    if ($this->debug) {
+                        $this->output($itemDetail);
+                        $output = '<pre>' . ob_get_clean() . '</pre>';
+                        $this->output($output);
+                        $this->output('<hr />');
+                    }
                 } else {
-                    // need this or else API server will crash
-                    $this->output('Removed item: SKIPPED <br />');
-                    $this->output('<hr />');
+                    if ($this->debug) {
+                        // need this or else API server will crash
+                        $this->output('Removed item: SKIPPED <br />');
+                        $this->output('<hr />');
+                    }
                 }
 
                 ++$totalCount;
@@ -183,7 +200,7 @@ class ProductDetails extends ARConnector
         return $itemDetails;
     }
 
-    public function compareProductWithBarcode(string $itemId): array
+    public function compareProductWithBarcode(string $itemId): ?array
     {
         $url = $this->makeUrlFromSegments('products/search/compareWithBarcode').'?queryContract.itemId=' . $itemId;
 

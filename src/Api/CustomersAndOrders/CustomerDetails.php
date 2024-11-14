@@ -23,7 +23,7 @@ class CustomerDetails extends ARConnector
         ?int $pageSize = 1000,
         ?string $sortOrder = 'customerId',
         ?string $sortDir = 'ASC'
-    ): array {
+    ): ?array {
         $url = $this->makeUrlFromSegments('customers/changed');
         $data = [
             'since' => $since,
@@ -33,13 +33,13 @@ class CustomerDetails extends ARConnector
             'dir' => $sortDir,
         ];
 
-        return $this->runRequest($url, 'POST', $data);
+        return $this->runRequest($url, 'POST', $data, false, 20);
     }
 
     /**
      * @param string $since
      */
-    public function getAllCustomerDetails(?string $since = '2015-09-27T21:11:12.532Z'): array
+    public function getAllCustomerDetails(?string $since = '2015-09-27T21:11:12.532Z'): ?array
     {
         $this->output('<h3>Fetching data since: ' . $since . '</h3>');
 
@@ -51,8 +51,10 @@ class CustomerDetails extends ARConnector
         $customerCount = 0;     // number of customers read from API
 
         while ($pageNumber <= $pageNumberLimit) {
-            $fullData = $this->getCustomersChanged($since, false, $pageNumber, $pageSize);
-            $customerData = $fullData['data'];
+            $customerData = $this->getCustomersChanged($since, false, $pageNumber, $pageSize);
+            if ($customerData === null) {
+                return null;
+            }
             // useful information ...
             // $pagingData = $fullData['paging'];
             //$itemsOnPage = sizeof($customerData);
@@ -72,21 +74,19 @@ class CustomerDetails extends ARConnector
         return $customers;
     }
 
-    public function getCustomerDetails(string $customerId): array
+    public function getCustomerDetails(string $customerId): ?array
     {
         $url = $this->makeUrlFromSegments('customers/' . $customerId);
 
         return $this->runRequest($url);
     }
 
-    public function getCustomerByEmail(string $email): array
+    public function getCustomerByEmail(string $email): ?array
     {
         $data = [
             'email' => $email,
         ];
         $url = $this->makeUrlFromSegments('customers/search/detailed');
-        $result = $this->runRequest($url, 'POST', $data);
-
-        return isset($result['data']) && is_array($result['data']) ? $result['data'] : [];
+        return $this->runRequest($url, 'POST', $data);
     }
 }
