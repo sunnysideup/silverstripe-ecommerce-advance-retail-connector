@@ -155,12 +155,12 @@ class ARConnector
     /**
      * Makes an HTTP request and sends back the response as JSON.
      */
-    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [], ?bool $showErrors = false, ?int $timeoutInSeconds = 2): ?array
+    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [], ?bool $showErrors = false, ?int $timeoutInSeconds = 10): ?array
     {
         $client = new Client();
         $response = null;
         if (!$timeoutInSeconds) {
-            $timeoutInSeconds = 2;
+            $timeoutInSeconds = 10;
         }
         $error = false;
         try {
@@ -195,7 +195,6 @@ class ARConnector
             return null;
         }
         $return = json_decode($response->getBody()->getContents(), true);
-
         if (!is_array($return)) {
             $this->logError('Invalid JSON response');
             $this->showErrors($uri, $showErrors, $response);
