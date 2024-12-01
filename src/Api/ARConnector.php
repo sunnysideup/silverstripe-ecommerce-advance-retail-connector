@@ -43,12 +43,12 @@ class ARConnector
     /**
      * @var bool
      */
-    protected string $debug = false;
+    protected bool $debug = false;
 
     /**
      * @var string
      */
-    protected string $debugString = false;
+    protected string $debugString = '';
 
     protected array|null $lastPagingData = null;
 
@@ -59,7 +59,7 @@ class ARConnector
      */
     protected array $errors = [];
 
-    private static string $branches_to_be_excluded_from_stock = [];
+    private static array $branches_to_be_excluded_from_stock = [];
 
     private static string $base_path = 'ARESAPI';
 
