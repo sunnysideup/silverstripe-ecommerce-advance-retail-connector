@@ -66,7 +66,7 @@ class ARConnector
     private static string $class_name_for_product = Product::class;
     private static string $class_name_for_product_groups = ProductGroup::class;
     private static int $time_out = 2;
-
+    private static bool $verify_ssl = true;
 
     public function __construct()
     {
@@ -155,9 +155,17 @@ class ARConnector
     /**
      * Makes an HTTP request and sends back the response as JSON.
      */
-    protected function runRequest(string $uri, ?string $method = 'GET', ?array $data = [], ?bool $showErrors = false, ?int $timeoutInSeconds = 10): ?array
-    {
+    protected function runRequest(
+        string $uri,
+        ?string $method = 'GET',
+        ?array $data = [],
+        ?bool $showErrors = false,
+        ?int $timeoutInSeconds = 10
+    ): ?array {
         $client = new Client();
+        if ($this->debug) {
+            $showErrors = true;
+        }
         $response = null;
         if (!$timeoutInSeconds) {
             $timeoutInSeconds = 10;
@@ -170,6 +178,7 @@ class ARConnector
                 [
                     'json' => $data,
                     'timeout' => $timeoutInSeconds,
+                    'verify' => $this->Config()->get('verify_ssl'),
                 ]
             );
         } catch (ConnectException $connectException) {

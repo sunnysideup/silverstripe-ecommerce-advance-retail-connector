@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Extensions;
 
+use SilverStripe\Core\Extension;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataExtension;
@@ -12,7 +13,7 @@ use SilverStripe\ORM\DataExtension;
  * @property \SilverStripe\Security\Member|\Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\MemberExtension $owner
  * @property int $AdvanceRetailCustomerID
  */
-class MemberExtension extends DataExtension
+class MemberExtension extends Extension
 {
     private static $db = [
         'AdvanceRetailCustomerID' => 'Int',

@@ -5,8 +5,10 @@ namespace Sunnysideup\EcommerceAdvanceRetailConnector\Control;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\ORM\DB;
 use SilverStripe\Security\Member;
 use Sunnysideup\Ecommerce\Model\Order;
+use Sunnysideup\Ecommerce\Pages\Product;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerDetails;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\CustomersAndOrders\CustomerOrder;
@@ -24,16 +26,14 @@ use Sunnysideup\Flush\FlushNowImplementor;
 class ARTestController extends Controller
 {
     use FlushNow;
-
-    protected $arConnectionCustomerDetails;
-    protected $arConnectionCustomerOrder;
-
     private static $url_segment = 'admin-test/advanceretailtest';
 
-    private $arConnectionProductCategories;
-    private $arConnectionProductDetails;
-    private $arConnectionProductPrices;
-    private $arConnectionProductStock;
+    protected CustomerDetails $arConnectionCustomerDetails;
+    protected CustomerOrder $arConnectionCustomerOrder;
+    private ProductCategories $arConnectionProductCategories;
+    private ProductDetails $arConnectionProductDetails;
+    private ProductPrices $arConnectionProductPrices;
+    private ProductStock $arConnectionProductStock;
 
     private static $allowed_actions = [
         'getorder' => 'ADMIN',
@@ -72,7 +72,13 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $arOrderID = ((int) $request->param('ID')) ?: rand(1, 999);
+        $arOrderID = ((int) $request->param('ID')) ?:
+            Order::get()
+            ->sort(
+                DB::get_conn()->random()
+            )->filter(['AdvanceRetailOrderID:GreaterThan' => 0])
+            ->first()
+            ->AdvanceRetailOrderID;
 
         $this->showHeader('Order with order id = ' . $arOrderID);
 
@@ -109,7 +115,13 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $custid = ((int) $request->Param('ID')) ?: rand(0, 9999);
+        $custid = ((int) $request->param('ID')) ?:
+            Member::get()
+            ->sort(
+                DB::get_conn()->random()
+            )->filter(['AdvanceRetailCustomerID:GreaterThan' => 0])
+            ->first()
+            ->AdvanceRetailCustomerID;
 
         $this->showHeader('Getting customer with ID = ' . $custid);
 
@@ -124,7 +136,13 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $email = $request->getVar('email') ?: 'hello@test.com';
+        $email = $request->getVar('email') ?:
+            Member::get()
+            ->sort(
+                DB::get_conn()->random()
+            )
+            ->first()
+            ->Email;
 
         $this->showHeader('Getting customer with Email = ' . $email);
         $customer = $this->arConnectionCustomerDetails->getCustomerByEmail($email);
@@ -173,7 +191,7 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $memberID = ((int) $request->Param('ID')) ?: rand(100000, 9999999);
+        $memberID = ((int) $request->Param('ID'));
         if ($memberID) {
             $member = Member::get_by_id($memberID);
 
@@ -196,7 +214,13 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $itemid = ((int) $request->Param('ID')) ?: rand(100000, 9999999);
+        $itemid = ((int) $request->Param('ID')) ?:
+            Product::get()
+            ->sort(
+                DB::get_conn()->random()
+            )->filter(['InternalItemID:NOT' => ['', null]])
+            ->first()
+            ->InternalItemID;
         $this->showHeader('Show details for Product with ID = ' . $itemid);
         $this->showResults($this->arConnectionProductDetails->getProductDetails($itemid));
         $this->showExplanation('Use like this:', 'getproduct/123123');
@@ -225,8 +249,8 @@ class ARTestController extends Controller
     {
         $this->setApis();
         $datePhrase = '1 year ago';
-        $since = $this->arConnectionCustomerDetails->convertTsToArDate(strtotime((string) $datePhrase));
-        $this->showHeader('Fetching data since: ' . $datePhrase);
+        $since = $this->arConnectionProductDetails->convertTsToArDate(strtotime((string) $datePhrase));
+        $this->showHeader('Fetching data since: ' . $datePhrase . '(' . $since . ')');
 
         $this->showResults($this->arConnectionProductDetails->getProductsChanged($since, true));
         $this->showIndex();
@@ -298,15 +322,19 @@ class ARTestController extends Controller
         $this->showResults($response);
     }
 
-    protected function setApis()
+    protected function initArConnection(string $class): mixed
     {
-        $this->arConnectionCustomerDetails = Injector::inst()->get(CustomerDetails::class)->setDebug(true);
-        $this->arConnectionCustomerOrder = Injector::inst()->get(CustomerOrder::class)->setDebug(true);
-        // products
-        $this->arConnectionProductCategories = Injector::inst()->get(ProductCategories::class)->setDebug(true);
-        $this->arConnectionProductDetails = Injector::inst()->get(ProductDetails::class)->setDebug(true);
-        $this->arConnectionProductPrices = Injector::inst()->get(ProductPrices::class)->setDebug(true);
-        $this->arConnectionProductStock = Injector::inst()->get(ProductStock::class)->setDebug(true);
+        return Injector::inst()->get($class)->setDebug(true);
+    }
+
+    protected function setApis(): void
+    {
+        $this->arConnectionCustomerDetails = $this->initArConnection(CustomerDetails::class);
+        $this->arConnectionCustomerOrder = $this->initArConnection(CustomerOrder::class);
+        $this->arConnectionProductCategories = $this->initArConnection(ProductCategories::class);
+        $this->arConnectionProductDetails = $this->initArConnection(ProductDetails::class);
+        $this->arConnectionProductPrices = $this->initArConnection(ProductPrices::class);
+        $this->arConnectionProductStock = $this->initArConnection(ProductStock::class);
     }
 
     protected function showHeader(string $header)
