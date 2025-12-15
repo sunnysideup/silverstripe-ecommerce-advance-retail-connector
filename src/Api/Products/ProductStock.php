@@ -73,7 +73,7 @@ class ProductStock extends ARConnector
             }
         }
         if (!is_array($productsAvailable)) {
-            $this->logError('Invalid JSON response: ' .print_r($productsAvailable, 1));
+            $this->logError('Invalid JSON response: ' . print_r($productsAvailable, 1));
             return [];
         }
         return $productsAvailable;
