@@ -22,18 +22,12 @@
     "require": {
         "sunnysideup/ecommerce": "^33.0",
         "silverstripe/recipe-cms": "^6.0",
+        "sunnysideup/flush": "dev-main",
         "guzzlehttp/guzzle": "*"
     },
     "autoload": {
         "psr-4": {
             "Sunnysideup\\EcommerceAdvanceRetailConnector\\": "src/"
-        }
-    },
-    "yet-to-update": {
-        "sunnysideup/flush": {
-            "section": "require",
-            "current": "^5.0-dev",
-            "reason": "no-compatible-stable-release"
         }
     }
 }
