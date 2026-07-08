@@ -2,6 +2,8 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Model\Process;
 
+use Override;
+use SilverStripe\Forms\FieldList;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\ReadonlyField;
@@ -32,21 +34,25 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
 
     private static $plural_name = 'Advance Retail Order Data';
 
+    #[Override]
     public function i18n_singular_name()
     {
         return self::$singular_name;
     }
 
-    public function i18n_plural_name()
+    #[Override]
+    public function plural_name()
     {
         return self::$plural_name;
     }
 
+    #[Override]
     public function canCreate($member = null, $context = [])
     {
         return false;
     }
 
+    #[Override]
     public function canEdit($member = null, $context = [])
     {
         return false;
@@ -55,8 +61,9 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
     /**
      * CMS Fields.
      *
-     * @return \SilverStripe\Forms\FieldList
+     * @return FieldList
      */
+    #[Override]
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
@@ -71,6 +78,7 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
     /**
      * adding a sequential order number.
      */
+    #[Override]
     protected function onBeforeWrite()
     {
         parent::onBeforeWrite();
@@ -95,6 +103,7 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
                             $member->AdvanceRetailCustomerID = $customerData['customerId'];
                             $member->write();
                         }
+
                         $arCustomerID = $member->AdvanceRetailCustomerID;
                     }
                 }
@@ -109,7 +118,7 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
                     $this->Note = 'Order has successfully been created in the Advance Retail API.';
                 } elseif (is_string($result) && $result) {
                     $this->Note = $result;
-                } elseif (is_array($result) && count($result) > 0) {
+                } elseif (is_array($result) && $result !== []) {
                     $this->Note = implode(',', $result);
                 } else {
                     $this->Note = 'Order has NOT been created in the Advance Retail API.';

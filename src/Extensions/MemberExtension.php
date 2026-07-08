@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Extensions;
 
+use SilverStripe\Security\Member;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\ReadonlyField;
-use SilverStripe\ORM\DataExtension;
 
 /**
  * Class \Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\MemberExtension
  *
- * @property \SilverStripe\Security\Member|\Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\MemberExtension $owner
+ * @property Member|MemberExtension $owner
  * @property int $AdvanceRetailCustomerID
  */
 class MemberExtension extends Extension

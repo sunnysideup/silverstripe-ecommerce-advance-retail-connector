@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Model\Process;
 
+use Override;
 use SilverStripe\Control\Director;
 use Sunnysideup\Ecommerce\Interfaces\OrderStepInterface;
 use Sunnysideup\Ecommerce\Model\Order;
@@ -41,6 +42,7 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
      *
      * @return bool - true if the current step is ready to be run...
      */
+    #[Override]
     public function initStep(Order $order): bool
     {
         return true;
@@ -56,11 +58,13 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
      *
      * @return bool - true if run correctly
      */
+    #[Override]
     public function doStep(Order $order): bool
     {
         if(Director::isDev()) {
             return true;
         }
+
         $logsExist = $this->RelevantLogEntries($order)->exists();
         if (! $logsExist) {
             $className = $this->getRelevantLogEntryClassName();
@@ -78,6 +82,7 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
      *
      * @return bool
      */
+    #[Override]
     public function hasCustomerMessage()
     {
         return false;
@@ -88,6 +93,7 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
      *
      * @return string
      */
+    #[Override]
     protected function myDescription()
     {
         return 'Sends website order data to the Advance Retail API';

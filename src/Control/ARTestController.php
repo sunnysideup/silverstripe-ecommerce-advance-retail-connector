@@ -26,13 +26,19 @@ use Sunnysideup\Flush\FlushNowImplementor;
 class ARTestController extends Controller
 {
     use FlushNow;
+
     private static $url_segment = 'admin-test/advanceretailtest';
 
     protected CustomerDetails $arConnectionCustomerDetails;
+
     protected CustomerOrder $arConnectionCustomerOrder;
+
     private ProductCategories $arConnectionProductCategories;
+
     private ProductDetails $arConnectionProductDetails;
+
     private ProductPrices $arConnectionProductPrices;
+
     private ProductStock $arConnectionProductStock;
 
     private static $allowed_actions = [
@@ -94,7 +100,7 @@ class ARTestController extends Controller
         $this->setApis();
 
         $orderID = (int) $request->param('ID');
-        if ($orderID) {
+        if ($orderID !== 0) {
             $order = Order::get_order_cached((int) $orderID);
             if ($order && $order->exists()) {
                 $this->showHeader('Creating order #' . $orderID);
@@ -170,7 +176,7 @@ class ARTestController extends Controller
 
         while ($pageNumber <= $pageNumberLimit) {
             $customerData = $this->arConnectionCustomerDetails->getCustomersChanged($since, false, $pageNumber, $pageSize);
-            if (empty($customerData)) {
+            if ($customerData === null || $customerData === []) {
                 break;
             }
 
@@ -192,7 +198,7 @@ class ARTestController extends Controller
         $this->setApis();
 
         $memberID = ((int) $request->Param('ID'));
-        if ($memberID) {
+        if ($memberID !== 0) {
             $member = Member::get_by_id($memberID);
 
             if ($member && $member->exists()) {
@@ -231,7 +237,7 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $itemid = ((int) $request->Param('ID')) ?: rand(100000, 9999999);
+        $itemid = ((int) $request->Param('ID')) ?: random_int(100000, 9999999);
         $this->showHeader('Show extra details for Product with ID = ' . $itemid);
 
         $this->showResults($this->arConnectionProductDetails->getProductDetailsExtra($itemid));
@@ -349,6 +355,7 @@ class ARTestController extends Controller
         foreach (array_keys(self::$allowed_actions) as $action) {
             echo '<li><a href="' . Director::absoluteURL($this->Link($action)) . '">' . $action . '</a></li>';
         }
+
         echo '</ul>';
     }
 

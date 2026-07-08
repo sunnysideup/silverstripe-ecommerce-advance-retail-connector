@@ -42,6 +42,7 @@ class CustomerOrder extends ARConnector
         if ($member->AdvanceRetailCustomerID) {
             return $member->AdvanceRetailCustomerID;
         }
+
         $data = [
             'branchId' => $branchId,
             'startDate' => $member->Created,
@@ -87,6 +88,7 @@ class CustomerOrder extends ARConnector
         if ($order->AdvanceRetailOrderID) {
             return 'This order already exists in AR with the ID: ' . $order->AdvanceRetailOrderID;
         }
+
         $data = [
             'lines' => OrderHelpers::get_line_items($order, $branchId, $workstationId),
             'payments' => OrderHelpers::get_payments($order),
@@ -113,9 +115,9 @@ class CustomerOrder extends ARConnector
             $result = $this->runRequest($url, 'POST', $data, false, 10);
             $order->AdvanceRetailOrderID = $result;
             $order->write();
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             //what should we do if the order is unable to be succesfully created?
-            $this->logError($e->getMessage());
+            $this->logError($exception->getMessage());
             $result = null;
         }
 
@@ -128,13 +130,14 @@ class CustomerOrder extends ARConnector
     public function getOrder($request): ?Order
     {
         $arOrderID = (int) $request->param('ID');
-        if ($arOrderID) {
+        if ($arOrderID !== 0) {
             //$obj = $this->getApi();
             $order = $this->getCustomerOrder($arOrderID);
             $this->output($order);
 
             return $order;
         }
+
         $this->output('You need to provide an order id from the AR api, eg: /ar-test/createorder/900000000');
 
         return null;

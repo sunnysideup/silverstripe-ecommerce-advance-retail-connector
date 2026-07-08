@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunnysideup\EcommerceAdvanceRetailConnector\Extensions;
 
+use Sunnysideup\Ecommerce\Model\Order;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\ORM\DataExtension;
 
 /**
  * Class \Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\OrderExtension
  *
- * @property \Sunnysideup\Ecommerce\Model\Order|\Sunnysideup\EcommerceAdvanceRetailConnector\Extensions\OrderExtension $owner
+ * @property Order|OrderExtension $owner
  * @property int $AdvanceRetailOrderID
  */
 class OrderExtension extends Extension

@@ -33,6 +33,7 @@ class OrderHelpers
             if (is_a($modifier, PickUpOrDeliveryModifier::class) && ! $shippingModifier) {
                 $shippingModifier = $modifier;
             }
+
             if (is_a($modifier, GSTTaxModifier::class) && ! $taxModifier) {
                 $taxModifier = $modifier;
             }
@@ -67,29 +68,27 @@ class OrderHelpers
 
         $shippingItemID = Config::inst()->get(OrderHelpers::class, 'shipping_product_item_id');
 
-        if ($shippingItemID && $shippingModifier) {
-            //find out if there is a shiping cost that needs to be added as a line item
-            if ($shippingModifier->CalculatedTotal > 0) {
-                $lineItems[] = [
-                    'branchId' => $branchId,
-                    'workstationId' => $workstationId,
-                    'customerOrderId' => 0,
-                    'lineNumber' => $lineNumber,
-                    'itemId' => $shippingItemID, //what is the itemID for outside of NZ?
-                    'description' => $shippingModifier->Name,
-                    'quantity' => 1,
-                    'unitPrice' => $shippingModifier->CalculatedTotal,
-                    'unitCost' => 0,
-                    'tax' => round($taxModifier->simpleTaxCalculation($shippingModifier->CalculatedTotal)),
-                    'isTaxInclusive' => $isTaxInclusive,
-                    'note' => '',
-                    'promoCode' => 0,
-                    'lineReference' => 0,
-                    'purchaseOrderId' => 0,
-                    'takenQuantity' => 0,
-                    'totalAmount' => $shippingModifier->CalculatedTotal,
-                ];
-            }
+        //find out if there is a shiping cost that needs to be added as a line item
+        if ($shippingItemID && $shippingModifier && $shippingModifier->CalculatedTotal > 0) {
+            $lineItems[] = [
+                'branchId' => $branchId,
+                'workstationId' => $workstationId,
+                'customerOrderId' => 0,
+                'lineNumber' => $lineNumber,
+                'itemId' => $shippingItemID, //what is the itemID for outside of NZ?
+                'description' => $shippingModifier->Name,
+                'quantity' => 1,
+                'unitPrice' => $shippingModifier->CalculatedTotal,
+                'unitCost' => 0,
+                'tax' => round($taxModifier->simpleTaxCalculation($shippingModifier->CalculatedTotal)),
+                'isTaxInclusive' => $isTaxInclusive,
+                'note' => '',
+                'promoCode' => 0,
+                'lineReference' => 0,
+                'purchaseOrderId' => 0,
+                'takenQuantity' => 0,
+                'totalAmount' => $shippingModifier->CalculatedTotal,
+            ];
         }
 
         return $lineItems;

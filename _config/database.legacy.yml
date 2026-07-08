@@ -1,3 +1,4 @@
-SilverStripe\ORM\DatabaseAdmin:
+
+SilverStripe\Dev\DbBuild:
   classname_value_remapping:
     AdvanceRetailConnector: Sunnysideup\EcommerceAdvanceRetailConnector\Api\AdvanceRetailConnector

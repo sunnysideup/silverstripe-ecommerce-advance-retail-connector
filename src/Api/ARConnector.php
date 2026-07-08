@@ -64,8 +64,11 @@ class ARConnector
     private static string $base_path = 'ARESAPI';
 
     private static string $class_name_for_product = Product::class;
+
     private static string $class_name_for_product_groups = ProductGroup::class;
+
     private static int $time_out = 2;
+
     private static bool $verify_ssl = true;
 
     public function __construct()
@@ -166,10 +169,12 @@ class ARConnector
         if ($this->debug) {
             $showErrors = true;
         }
+
         $response = null;
         if (!$timeoutInSeconds) {
             $timeoutInSeconds = 10;
         }
+
         $error = false;
         try {
             $response = $client->request(
@@ -193,38 +198,37 @@ class ARConnector
             if ($requestException->hasResponse()) {
                 $this->logError('Request error response: ' . Message::toString($requestException->getResponse()));
             }
+
             $error = true;
         } catch (Exception $exception) {
             $this->logError('Unexpected error: ' . $exception->getMessage());
             $error = true;
         }
+
         if ($error) {
             $this->logError('Empty Response');
             $this->showErrors($uri, $showErrors, 'no response');
             return null;
         }
+
         $return = json_decode($response->getBody()->getContents(), true);
         if (!is_array($return)) {
             $this->logError('Invalid JSON response');
             $this->showErrors($uri, $showErrors, $response);
             return null;
         }
+
         $this->showErrors($uri, $showErrors, $response);
-        if (isset($return['paging'])) {
-            $this->lastPagingData = $return['paging'];
-        } else {
-            $this->lastPagingData = null;
-        }
-        if (isset($this->lastPagingData['totalRecords'])) {
-            $this->lastTotalRecords = $this->lastPagingData['totalRecords'];
-        } else {
-            $this->lastTotalRecords = null;
-        }
+        $this->lastPagingData = $return['paging'] ?? null;
+
+        $this->lastTotalRecords = $this->lastPagingData['totalRecords'] ?? null;
+
         if (isset($return['data']) && is_array($return['data'])) {
             return $return['data'];
         } elseif (is_array($return)) {
             return $return;
         }
+
         return null;
     }
 
@@ -232,9 +236,10 @@ class ARConnector
     {
         if ($showErrors) {
             print_r($uri);
-            if (! empty($this->getErrors())) {
+            if ($this->getErrors() !== []) {
                 print_r($this->getErrors());
             }
+
             if (! empty($data)) {
                 print_r($data);
             }

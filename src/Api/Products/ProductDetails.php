@@ -96,6 +96,7 @@ class ProductDetails extends ARConnector
                     if ($itemDetail === null) {
                         return null;
                     }
+
                     $itemDetails[$totalCount] = $itemDetail;
                     if ($this->debug) {
                         $this->output($itemDetail);
@@ -103,12 +104,10 @@ class ProductDetails extends ARConnector
                         $this->output($output);
                         $this->output('<hr />');
                     }
-                } else {
-                    if ($this->debug) {
-                        // need this or else API server will crash
-                        $this->output('Removed item: SKIPPED <br />');
-                        $this->output('<hr />');
-                    }
+                } elseif ($this->debug) {
+                    // need this or else API server will crash
+                    $this->output('Removed item: SKIPPED <br />');
+                    $this->output('<hr />');
                 }
 
                 ++$totalCount;
@@ -117,10 +116,12 @@ class ProductDetails extends ARConnector
                 }
             }
         }
+
         if (!is_array($itemDetails)) {
             $this->logError('Invalid JSON response: ' .print_r($itemDetails, 1));
             return [];
         }
+
         return $itemDetails;
     }
 
@@ -179,12 +180,10 @@ class ProductDetails extends ARConnector
                         $this->output($output);
                         $this->output('<hr />');
                     }
-                } else {
-                    if ($this->debug) {
-                        // need this or else API server will crash
-                        $this->output('Removed item: SKIPPED <br />');
-                        $this->output('<hr />');
-                    }
+                } elseif ($this->debug) {
+                    // need this or else API server will crash
+                    $this->output('Removed item: SKIPPED <br />');
+                    $this->output('<hr />');
                 }
 
                 ++$totalCount;
@@ -193,10 +192,12 @@ class ProductDetails extends ARConnector
                 }
             }
         }
+
         if (!is_array($itemDetails)) {
             $this->logError('Invalid JSON response: ' .print_r($itemDetails, 1));
             return [];
         }
+
         return $itemDetails;
     }
 

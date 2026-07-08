@@ -24,6 +24,7 @@ class ProductPrices extends ARConnector
         if (! $since) {
             $since = ARConnector::convert_silverstripe_to_ar_date('1 jan 1980');
         }
+
         $key = preg_replace('/[^A-Za-z0-9 ]/', '', (string) $since);
         if (! isset(self::$price_cache[$key])) {
             $url = $this->makeUrlFromSegments('products/price/changed');
@@ -35,10 +36,12 @@ class ProductPrices extends ARConnector
             ];
             self::$price_cache[$key] = $this->runRequest($url, 'POST', $data, false, 10);
         }
+
         if (!is_array(self::$price_cache[$key])) {
             $this->logError('Invalid JSON response: ' . print_r(self::$price_cache[$key], 1));
             return [];
         }
+
         return self::$price_cache[$key];
     }
 
@@ -52,7 +55,8 @@ class ProductPrices extends ARConnector
         if ($products === null) {
             return null;
         }
-        if (! empty($products)) {
+
+        if ($products !== []) {
             //make sure to do a false comparison because we do not know type of data.
             $key = array_search($productCode, array_column($products, 'id'), false);
 

@@ -13,12 +13,11 @@ class ProductStock extends ARConnector
 
     public function getAvailability(array $productCodes, $branchID = null): ?array
     {
-        if ($this->debug) {
-            if ($this->debug) {
-                $this->startTime = microtime(true);
-                $this->output('<h4>' . implode(',', $productCodes) . '</h4>');
-            }
+        if ($this->debug && $this->debug) {
+            $this->startTime = microtime(true);
+            $this->output('<h4>' . implode(',', $productCodes) . '</h4>');
         }
+
         $data = [
             'itemIds' => $productCodes,
             'branchIdsExcluded' => $this->config()->get('branches_to_be_excluded_from_stock'),
@@ -35,6 +34,7 @@ class ProductStock extends ARConnector
             $this->output('<h5>Branch</h5> ' . ($branchID ?: 'ANY'));
             $this->output('<h5>to</h5>' . $url);
         }
+
         $dataKey = serialize($data);
         if (! array_key_exists($dataKey, self::$storedStockResponses)) {
             self::$storedStockResponses[$dataKey] = $this->runRequest($url, 'POST', $data, false, 1);
@@ -42,6 +42,7 @@ class ProductStock extends ARConnector
                 return null;
             }
         }
+
         // parse the XML body
         $productsAvailable = [];
         $response = self::$storedStockResponses[$dataKey];
@@ -49,14 +50,13 @@ class ProductStock extends ARConnector
             foreach ($response as $itemData) {
                 if (isset($itemData['itemId'])) {
                     $itemID = $itemData['itemId'];
-                    $productsAvailable[$itemID][self::ALL_BRANCH_ID] = $productsAvailable[$itemID][self::ALL_BRANCH_ID] ?? 0;
+                    $productsAvailable[$itemID][self::ALL_BRANCH_ID] ??= 0;
                     foreach ($itemData['branchAvailabilities'] as $branchData) {
                         $availablePerBranch = (int) ($branchData['available'] ?? 0);
-                        if ($this->config()->get('ignore_negative_stock')) {
-                            if ($availablePerBranch < 0) {
-                                $availablePerBranch = 0;
-                            }
+                        if ($this->config()->get('ignore_negative_stock') && $availablePerBranch < 0) {
+                            $availablePerBranch = 0;
                         }
+
                         $productsAvailable[$itemID][self::ALL_BRANCH_ID] += $availablePerBranch;
                         $productsAvailable[$itemID][$branchData['branchId']] = $availablePerBranch;
                     }
@@ -64,18 +64,18 @@ class ProductStock extends ARConnector
             }
         }
 
-        if ($this->debug) {
-            if ($this->debug) {
-                $timeTaken = round((microtime(true) - $this->startTime) * 1000) . ' microseconds (1000 microseconds in one second)';
-                $this->output('<h5>response: ' . print_r($productsAvailable, 1) . '</h5>');
-                $this->output('<pre>' . print_r($response, 1) . '</pre>');
-                $this->output('<h5>Time Taken: ' . $timeTaken . '</h5>');
-            }
+        if ($this->debug && $this->debug) {
+            $timeTaken = round((microtime(true) - $this->startTime) * 1000) . ' microseconds (1000 microseconds in one second)';
+            $this->output('<h5>response: ' . print_r($productsAvailable, 1) . '</h5>');
+            $this->output('<pre>' . print_r($response, 1) . '</pre>');
+            $this->output('<h5>Time Taken: ' . $timeTaken . '</h5>');
         }
+
         if (!is_array($productsAvailable)) {
             $this->logError('Invalid JSON response: ' . print_r($productsAvailable, 1));
             return [];
         }
+
         return $productsAvailable;
     }
 }

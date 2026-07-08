@@ -55,6 +55,7 @@ class CustomerDetails extends ARConnector
             if ($customerData === null) {
                 return null;
             }
+
             // useful information ...
             // $pagingData = $fullData['paging'];
             //$itemsOnPage = sizeof($customerData);
@@ -66,11 +67,13 @@ class CustomerDetails extends ARConnector
 
             ++$pageNumber;
         }
+
         $this->output($customers);
         if (!is_array($customers)) {
             $this->logError('Invalid JSON response: ' .print_r($customers, 1));
             return [];
         }
+
         return $customers;
     }
 
