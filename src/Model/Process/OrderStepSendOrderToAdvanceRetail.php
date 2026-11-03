@@ -32,6 +32,8 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
         'HideStepFromCustomer' => 1,
     ];
 
+    private static $enabled = false;
+
     /**
      *initStep:
      * makes sure the step is ready to run.... (e.g. check if the order is ready to be emailed as receipt).
@@ -58,7 +60,10 @@ class OrderStepSendOrderToAdvanceRetail extends OrderStep implements OrderStepIn
      */
     public function doStep(Order $order): bool
     {
-        if(Director::isDev()) {
+        if (! $this->config()->get('enabled')) {
+            return true;
+        }
+        if (Director::isDev()) {
             return true;
         }
         $logsExist = $this->RelevantLogEntries($order)->exists();
