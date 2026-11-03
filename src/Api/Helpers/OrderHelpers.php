@@ -52,7 +52,7 @@ class OrderHelpers
                     'quantity' => (float) -1 * (float) $orderItem->Quantity, //must be negative
                     'unitPrice' => $orderItem->getUnitPrice(),
                     'unitCost' => 0, // what should we put here?
-                    'tax' => round($taxModifier->getTotalTaxPerLineItem($orderItem)),
+                    'tax' => $taxModifier ? round($taxModifier->getTotalTaxPerLineItem($orderItem)) : 0, // no GST modifier (e.g. tax free airport orders)
                     'isTaxInclusive' => $isTaxInclusive,
                     'note' => '',
                     'promoCode' => 0, //to be added
@@ -80,7 +80,7 @@ class OrderHelpers
                     'quantity' => 1,
                     'unitPrice' => $shippingModifier->CalculatedTotal,
                     'unitCost' => 0,
-                    'tax' => round($taxModifier->simpleTaxCalculation($shippingModifier->CalculatedTotal)),
+                    'tax' => $taxModifier ? round($taxModifier->simpleTaxCalculation($shippingModifier->CalculatedTotal)) : 0,
                     'isTaxInclusive' => $isTaxInclusive,
                     'note' => '',
                     'promoCode' => 0,

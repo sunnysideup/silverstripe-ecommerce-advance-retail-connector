@@ -4,9 +4,12 @@ namespace Sunnysideup\EcommerceAdvanceRetailConnector\Control;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Member;
+use SilverStripe\Security\SecurityToken;
 use Sunnysideup\Ecommerce\Model\Order;
 use Sunnysideup\Ecommerce\Pages\Product;
 use Sunnysideup\EcommerceAdvanceRetailConnector\Api\ARConnector;
@@ -27,6 +30,12 @@ class ARTestController extends Controller
 {
     use FlushNow;
     private static $url_segment = 'admin-test/advanceretailtest';
+
+    /**
+     * The write actions (createorder, createcustomer) write to the REAL Advance Retail system.
+     * They are therefore only available on the live site, unless this is set to true.
+     */
+    private static bool $allow_writes_when_not_live = false;
 
     protected CustomerDetails $arConnectionCustomerDetails;
     protected CustomerOrder $arConnectionCustomerOrder;
@@ -97,10 +106,12 @@ class ARTestController extends Controller
         if ($orderID) {
             $order = Order::get_order_cached((int) $orderID);
             if ($order && $order->exists()) {
-                $this->showHeader('Creating order #' . $orderID);
-                $this->showResults(
-                    $this->arConnectionCustomerOrder->createOrder($order)
-                );
+                if ($this->mayWrite($request, 'createorder', $orderID)) {
+                    $this->showHeader('Creating order #' . $orderID);
+                    $this->showResults(
+                        $this->arConnectionCustomerOrder->createOrder($order)
+                    );
+                }
             } else {
                 FlushNowImplementor::do_flush('There is no matching order in the database', 'deleted');
             }
@@ -136,15 +147,15 @@ class ARTestController extends Controller
     {
         $this->setApis();
 
-        $email = $request->getVar('email') ?:
-            Member::get()
+        $email = $request->getVar('email');
+        $email = (is_string($email) && $email !== '') ? $email : Member::get()
             ->sort(
                 DB::get_conn()->random()
             )
             ->first()
             ->Email;
 
-        $this->showHeader('Getting customer with Email = ' . $email);
+        $this->showHeader('Getting customer with Email = ' . Convert::raw2xml($email));
         $customer = $this->arConnectionCustomerDetails->getCustomerByEmail($email);
         $customer = reset($customer);
         $this->showResults($customer);
@@ -196,11 +207,13 @@ class ARTestController extends Controller
             $member = Member::get_by_id($memberID);
 
             if ($member && $member->exists()) {
-                $result = $this->arConnectionCustomerOrder->createCustomer($member);
-                echo 'If the following is an integer, an customer has successfully been created';
-                echo '<pre>';
-                $this->showResults($result);
-                echo '</pre>';
+                if ($this->mayWrite($request, 'createcustomer', $memberID)) {
+                    $result = $this->arConnectionCustomerOrder->createCustomer($member);
+                    echo 'If the following is an integer, an customer has successfully been created';
+                    echo '<pre>';
+                    $this->showResults($result);
+                    echo '</pre>';
+                }
             } else {
                 echo 'There is no matching member in the database';
             }
@@ -337,6 +350,29 @@ class ARTestController extends Controller
         $this->arConnectionProductStock = $this->initArConnection(ProductStock::class);
     }
 
+    /**
+     * Write actions need to be on the live site (or explicitly allowed), POST and have a valid security token.
+     * If the request is not a valid POST, a small confirmation form is shown.
+     */
+    protected function mayWrite(HTTPRequest $request, string $action, int $id): bool
+    {
+        if (! Director::isLive() && ! $this->config()->get('allow_writes_when_not_live')) {
+            echo '<p>This action writes to the real Advance Retail system and is therefore only available on the live site.</p>';
+
+            return false;
+        }
+        if ($request->isPOST() && SecurityToken::inst()->checkRequest($request)) {
+            return true;
+        }
+        echo '<form method="post" action="' . Convert::raw2att(Director::absoluteURL($this->Link($action . '/' . $id))) . '">'
+            . '<p>This action writes to the real Advance Retail system.</p>'
+            . '<input type="hidden" name="' . Convert::raw2att(SecurityToken::inst()->getName()) . '" value="' . Convert::raw2att(SecurityToken::inst()->getValue()) . '" />'
+            . '<button type="submit">Yes, run ' . Convert::raw2xml($action) . ' for ' . (int) $id . '</button>'
+            . '</form>';
+
+        return false;
+    }
+
     protected function showHeader(string $header)
     {
         FlushNowImplementor::do_flush_heading($header);
@@ -361,7 +397,7 @@ class ARTestController extends Controller
     protected function showResults($results)
     {
         echo '<pre>';
-        print_r($results);
+        echo htmlspecialchars(print_r($results, true), ENT_QUOTES, 'UTF-8');
         echo '</pre>';
     }
 }

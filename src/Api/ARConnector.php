@@ -52,6 +52,17 @@ class ARConnector
 
     protected array|null $lastPagingData = null;
 
+    /**
+     * the JSON-decoded body of the last response (can be a scalar, e.g. a bare order id)
+     * or null if there was no (valid) response.
+     */
+    protected mixed $lastDecodedResponse = null;
+
+    /**
+     * the raw body of the last response (empty if there was none).
+     */
+    protected string $lastRawResponse = '';
+
     protected int|null $lastTotalRecords = null;
 
     /**
@@ -142,6 +153,35 @@ class ARConnector
         );
     }
 
+    /**
+     * runRequest returns null for anything that is not a JSON array/object.
+     * Use this to find out what the API really replied (e.g. a bare integer id).
+     */
+    public function getLastDecodedResponse(): mixed
+    {
+        return $this->lastDecodedResponse;
+    }
+
+    public function getLastRawResponse(): string
+    {
+        return $this->lastRawResponse;
+    }
+
+    /**
+     * returns a positive integer for a positive int or numeric string, otherwise null.
+     */
+    protected function turnIntoPositiveId(mixed $value): ?int
+    {
+        if (is_int($value) && $value > 0) {
+            return $value;
+        }
+        if (is_string($value) && ctype_digit(trim($value)) && (int) trim($value) > 0) {
+            return (int) trim($value);
+        }
+
+        return null;
+    }
+
     public function getLastPagingData(): ?array
     {
         return $this->lastPagingData;
@@ -167,6 +207,8 @@ class ARConnector
             $showErrors = true;
         }
         $response = null;
+        $this->lastDecodedResponse = null;
+        $this->lastRawResponse = '';
         if (!$timeoutInSeconds) {
             $timeoutInSeconds = 10;
         }
@@ -203,7 +245,9 @@ class ARConnector
             $this->showErrors($uri, $showErrors, 'no response');
             return null;
         }
-        $return = json_decode($response->getBody()->getContents(), true);
+        $this->lastRawResponse = (string) $response->getBody()->getContents();
+        $return = json_decode($this->lastRawResponse, true);
+        $this->lastDecodedResponse = $return;
         if (!is_array($return)) {
             $this->logError('Invalid JSON response');
             $this->showErrors($uri, $showErrors, $response);
@@ -231,12 +275,14 @@ class ARConnector
     protected function showErrors(string $uri, bool $showErrors, $data = null)
     {
         if ($showErrors) {
-            print_r($uri);
+            // the output can end up in a web page: escape it
+            $escape = fn ($value) => PHP_SAPI === 'cli' ? print_r($value, true) : htmlspecialchars(print_r($value, true), ENT_QUOTES, 'UTF-8');
+            echo $escape($uri);
             if (! empty($this->getErrors())) {
-                print_r($this->getErrors());
+                echo $escape($this->getErrors());
             }
             if (! empty($data)) {
-                print_r($data);
+                echo $escape($data);
             }
         }
     }
