@@ -157,12 +157,6 @@ class OrderStatusLogSendOrderToAdvanceRetail extends OrderStatusLog
             $subject = 'Order #' . (int) $order->ID . ' could NOT be sent to Advance Retail';
             $body = '<p>' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</p>'
                 . '<p>Please check Advance Retail before sending this order again: it may already be there (notes start with "Website order #' . (int) $order->ID . '").</p>';
-            $class = 'PhotoWarehouse\\AdvanceRetailSync\\Api\\WarningEmail';
-            if (class_exists($class)) {
-                $class::inst()->sendWarningEmail($subject, $body);
-
-                return;
-            }
             $to = Email::config()->get('admin_email');
             if ($to) {
                 $email = new Email($to, $to, $subject . ' - ' . Director::absoluteBaseURL(), $body);
